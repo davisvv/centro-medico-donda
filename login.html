@@ -260,6 +260,43 @@
         }
     </script>
 
+    <script>
+        // Esperamos a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            // Suponiendo que tu botón de ingreso está dentro de un <form> o tiene un ID dedicado
+            // Si no tienes etiqueta <form>, podemos capturar directamente el clic del botón de ingreso.
+            const botonIngresar = document.querySelector('.btn-ingresar') || document.getElementById('btnIngresar');
+            const campoEmail = document.querySelector('input[type="email"]');
+
+            if (botonIngresar) {
+                botonIngresar.addEventListener('click', (e) => {
+                    // Evitamos que la página se recargue si es un formulario estándar
+                    e.preventDefault();
+
+                    const email = campoEmail.value.trim().toLowerCase();
+
+                    // ── LÓGICA DE REDIRECCIÓN POR CORREO (FASE 1 ESTÁTICA) ──
+                    if (email === 'admin@donda.com') {
+                        // Si es el administrador global
+                        window.location.href = 'perfil-admin.html';
+                    }
+                    else if (email === 'recepcion@donda.com' || email === 'recepcionista@donda.com') {
+                        // Si es el rol de recepcionista
+                        window.location.href = 'perfil-recepcion.html';
+                    }
+                    else if (email === 'medico@donda.com' || email === 'doctor@donda.com') {
+                        // Tu dashboard actual asignado al médico
+                        window.location.href = 'dashboard.html';
+                    }
+                    else {
+                        // Por defecto, cualquier otro correo simulamos que es un Paciente
+                        window.location.href = 'perfil-usuario.html';
+                    }
+                });
+            }
+        });
+    </script>
+
 </body>
 
 </html>
