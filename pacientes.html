@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centro Médico DONDA — Pacientes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --verde: #0F6E56;
+            --verde-oscuro: #085041;
+            --verde-claro: #E1F5EE;
+            --gris-fondo: #F4F6F8;
+            --gris-borde: #DEE2E6;
+            --texto: #1A1A2E;
+            --texto-suave: #6C757D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--gris-fondo);
+            min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--verde);
+            padding: 16px 24px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar a {
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .topbar-titulo {
+            flex: 1;
+        }
+
+        .topbar-titulo h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topbar-titulo p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 2px;
+        }
+
+        .btn-nuevo {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-nuevo:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── BUSCADOR ── */
+        .buscador-wrap {
+            padding: 16px 20px 8px;
+        }
+
+        .buscador {
+            position: relative;
+        }
+
+        .buscador i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--texto-suave);
+        }
+
+        .buscador input {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            border: 1.5px solid var(--gris-borde);
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fff;
+            color: var(--texto);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .buscador input:focus {
+            border-color: var(--verde);
+        }
+
+        /* ── FILTROS ── */
+        .filtros {
+            display: flex;
+            gap: 8px;
+            padding: 8px 20px 12px;
+            overflow-x: auto;
+        }
+
+        .filtro {
+            padding: 6px 16px;
+            border-radius: 99px;
+            border: 1.5px solid var(--gris-borde);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--texto-suave);
+            cursor: pointer;
+            white-space: nowrap;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .filtro.activo {
+            background: var(--verde);
+            border-color: var(--verde);
+            color: #fff;
+        }
+
+        /* ── LISTA PACIENTES ── */
+        .lista {
+            padding: 4px 20px 100px;
+        }
+
+        .paciente-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+            text-decoration: none;
+        }
+
+        .paciente-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+        }
+
+        .pac-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .av-verde {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+        }
+
+        .av-azul {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        .av-ambar {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .av-rojo {
+            background: #FCEBEB;
+            color: #A32D2D;
+        }
+
+        .pac-info {
+            flex: 1;
+        }
+
+        .pac-nombre {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--texto);
+        }
+
+        .pac-datos {
+            font-size: 12px;
+            color: var(--texto-suave);
+            margin-top: 3px;
+        }
+
+        .pac-estado {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 99px;
+        }
+
+        .badge-activo {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+        }
+
+        .badge-control {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .badge-nuevo {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        .pac-fecha {
+            font-size: 11px;
+            color: var(--texto-suave);
+        }
+
+        /* ── MODAL VER PACIENTE ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .overlay.abierto {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 28px 24px 40px;
+            animation: slideUp 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-titulo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--texto);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-titulo button {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--texto-suave);
+            cursor: pointer;
+        }
+
+        /* Perfil del paciente dentro del modal */
+        .perfil-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .perfil-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .perfil-nombre {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--texto);
+        }
+
+        .perfil-sub {
+            font-size: 13px;
+            color: var(--texto-suave);
+            margin-top: 3px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--texto-suave);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+
+        .info-item span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--texto);
+        }
+
+        .seccion-titulo {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--texto);
+            margin-bottom: 10px;
+            margin-top: 4px;
+        }
+
+        .historial-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gris-borde);
+        }
+
+        .historial-item:last-child {
+            border-bottom: none;
+        }
+
+        .hist-fecha {
+            font-size: 11px;
+            color: var(--texto-suave);
+            min-width: 70px;
+            padding-top: 2px;
+        }
+
+        .hist-desc {
+            font-size: 13px;
+            color: var(--texto);
+            font-weight: 500;
+        }
+
+        .hist-medico {
+            font-size: 12px;
+            color: var(--texto-suave);
+            margin-top: 2px;
+        }
+
+        .btn-cita {
+            width: 100%;
+            padding: 13px;
+            background: var(--verde);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+
+        .btn-cita:hover {
+            background: var(--verde-oscuro);
+        }
+
+        /* ── NAV INFERIOR ── */
+        .nav-inferior {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--gris-borde);
+            display: flex;
+            padding: 10px 0 14px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--texto-suave);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item.activo {
+            color: var(--verde);
+        }
+
+        .nav-item:hover {
+            color: var(--verde);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <a href="dashboard.html"><i class="bi bi-arrow-left"></i></a>
+        <div class="topbar-titulo">
+            <h2>Pacientes</h2>
+            <p>148 pacientes registrados</p>
+        </div>
+        <button class="btn-nuevo" onclick="abrirModal('nuevo')">
+            <i class="bi bi-plus"></i> Nuevo
+        </button>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="buscador-wrap">
+        <div class="buscador">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Buscar por nombre o cédula..." oninput="buscar(this.value)" />
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros">
+        <div class="filtro activo" onclick="selFiltro(this)">Todos</div>
+        <div class="filtro" onclick="selFiltro(this)">Activos</div>
+        <div class="filtro" onclick="selFiltro(this)">En control</div>
+        <div class="filtro" onclick="selFiltro(this)">Nuevos</div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="lista" id="lista">
+
+        <div class="paciente-card" onclick="abrirModal('MG')">
+            <div class="pac-avatar av-verde">MG</div>
+            <div class="pac-info">
+                <div class="pac-nombre">María García</div>
+                <div class="pac-datos"><i class="bi bi-person-badge"></i> CC 12345678 &nbsp;·&nbsp; 34 años
+                    &nbsp;·&nbsp; Femenino</div>
+            </div>
+            <div class="pac-estado">
+                <span class="badge badge-activo">Activo</span>
+                <span class="pac-fecha">Última cita: hoy</span>
+            </div>
+        </div>
+
+        <div class="paciente-card" onclick="abrirModal('CR')">
+            <div class="pac-avatar av-azul">CR</div>
+            <div class="pac-info">
+                <div class="pac-nombre">Carlos Ríos</div>
+                <div class="pac-datos"><i class="bi bi-person-badge"></i> CC 98765432 &nbsp;·&nbsp; 45 años
+                    &nbsp;·&nbsp; Masculino</div>
+            </div>
+            <div class="pac-estado">
+                <span class="badge badge-control">En control</span>
+                <span class="pac-fecha">Última cita: 3 jun</span>
+            </div>
+        </div>
+
+        <div class="paciente-card" onclick="abrirModal('LM')">
+            <div class="pac-avatar av-ambar">LM</div>
+            <div class="pac-info">
+                <div class="pac-nombre">Lucía Mora</div>
+                <div class="pac-datos"><i class="bi bi-person-badge"></i> CC 11223344 &nbsp;·&nbsp; 28 años
+                    &nbsp;·&nbsp; Femenino</div>
+            </div>
+            <div class="pac-estado">
+                <span class="badge badge-activo">Activo</span>
+                <span class="pac-fecha">Última cita: hoy</span>
+            </div>
+        </div>
+
+        <div class="paciente-card" onclick="abrirModal('JP')">
+            <div class="pac-avatar av-rojo">JP</div>
+            <div class="pac-info">
+                <div class="pac-nombre">Jorge Peña</div>
+                <div class="pac-datos"><i class="bi bi-person-badge"></i> CC 55667788 &nbsp;·&nbsp; 52 años
+                    &nbsp;·&nbsp; Masculino</div>
+            </div>
+            <div class="pac-estado">
+                <span class="badge badge-nuevo">Nuevo</span>
+                <span class="pac-fecha">Registrado: hoy</span>
+            </div>
+        </div>
+
+        <div class="paciente-card" onclick="abrirModal('AS')">
+            <div class="pac-avatar av-verde">AS</div>
+            <div class="pac-info">
+                <div class="pac-nombre">Ana Suárez</div>
+                <div class="pac-datos"><i class="bi bi-person-badge"></i> CC 33445566 &nbsp;·&nbsp; 39 años
+                    &nbsp;·&nbsp; Femenino</div>
+            </div>
+            <div class="pac-estado">
+                <span class="badge badge-control">En control</span>
+                <span class="pac-fecha">Última cita: 1 jun</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DETALLE PACIENTE -->
+    <div class="overlay" id="overlay" onclick="cerrarModal(event)">
+        <div class="modal" id="modal-contenido">
+            <!-- Se llena con JavaScript -->
+        </div>
+    </div>
+
+    <!-- NAV INFERIOR -->
+    <nav class="nav-inferior">
+        <a class="nav-item" href="dashboard.html"><i class="bi bi-house"></i>Inicio</a>
+        <a class="nav-item" href="citas.html"><i class="bi bi-calendar"></i>Citas</a>
+        <a class="nav-item activo" href="pacientes.html"><i class="bi bi-people"></i>Pacientes</a>
+        <a class="nav-item" href="#"><i class="bi bi-person"></i>Perfil</a>
+    </nav>
+
+    <script>
+
+        // Datos de los pacientes
+        const pacientes = {
+            MG: {
+                nombre: 'María García', cc: '12345678', edad: '34 años', sexo: 'Femenino', eps: 'Sura', sangre: 'O+', telefono: '310 555 0101', historial: [
+                    { fecha: '07 Jun', desc: 'Consulta general', medico: 'Dr. Pérez' },
+                    { fecha: '15 May', desc: 'Control de tensión', medico: 'Dr. Pérez' },
+                    { fecha: '02 Mar', desc: 'Revisión anual', medico: 'Dra. López' },
+                ]
+            },
+            CR: {
+                nombre: 'Carlos Ríos', cc: '98765432', edad: '45 años', sexo: 'Masculino', eps: 'Sanitas', sangre: 'A+', telefono: '315 555 0202', historial: [
+                    { fecha: '03 Jun', desc: 'Control rutinario', medico: 'Dr. Pérez' },
+                    { fecha: '10 Abr', desc: 'Examen de laboratorio', medico: 'Dra. López' },
+                ]
+            },
+            LM: {
+                nombre: 'Lucía Mora', cc: '11223344', edad: '28 años', sexo: 'Femenino', eps: 'Nueva EPS', sangre: 'B+', telefono: '320 555 0303', historial: [
+                    { fecha: '07 Jun', desc: 'Revisión de resultados', medico: 'Dr. Pérez' },
+                    { fecha: '20 May', desc: 'Toma de muestras', medico: 'Laboratorio' },
+                ]
+            },
+            JP: { nombre: 'Jorge Peña', cc: '55667788', edad: '52 años', sexo: 'Masculino', eps: 'Compensar', sangre: 'AB-', telefono: '300 555 0404', historial: [] },
+            AS: {
+                nombre: 'Ana Suárez', cc: '33445566', edad: '39 años', sexo: 'Femenino', eps: 'Sura', sangre: 'O-', telefono: '311 555 0505', historial: [
+                    { fecha: '01 Jun', desc: 'Control mensual', medico: 'Dr. Pérez' },
+                    { fecha: '01 May', desc: 'Control mensual', medico: 'Dr. Pérez' },
+                ]
+            },
+        };
+
+        function abrirModal(id) {
+            if (id === 'nuevo') {
+                document.getElementById('modal-contenido').innerHTML = `
+          <div class="modal-titulo">Nuevo paciente <button onclick="cerrarModal()"><i class="bi bi-x"></i></button></div>
+          <div style="display:grid;gap:14px">
+            <div><label style="font-size:12px;font-weight:600;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Nombre completo</label>
+            <input type="text" placeholder="Ej: Ana Martínez" style="width:100%;padding:11px 14px;border:1.5px solid var(--gris-borde);border-radius:10px;font-size:14px;background:var(--gris-fondo);outline:none"></div>
+            <div><label style="font-size:12px;font-weight:600;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Cédula</label>
+            <input type="text" placeholder="Ej: 12345678" style="width:100%;padding:11px 14px;border:1.5px solid var(--gris-borde);border-radius:10px;font-size:14px;background:var(--gris-fondo);outline:none"></div>
+            <div><label style="font-size:12px;font-weight:600;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">EPS</label>
+            <select style="width:100%;padding:11px 14px;border:1.5px solid var(--gris-borde);border-radius:10px;font-size:14px;background:var(--gris-fondo);outline:none">
+              <option>Sura</option><option>Sanitas</option><option>Nueva EPS</option><option>Compensar</option>
+            </select></div>
+            <div><label style="font-size:12px;font-weight:600;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Teléfono</label>
+            <input type="tel" placeholder="Ej: 310 555 0101" style="width:100%;padding:11px 14px;border:1.5px solid var(--gris-borde);border-radius:10px;font-size:14px;background:var(--gris-fondo);outline:none"></div>
+          </div>
+          <button class="btn-cita" onclick="alert('Paciente registrado exitosamente!');cerrarModal()">Registrar paciente</button>
+        `;
+            } else {
+                const p = pacientes[id];
+                const histHTML = p.historial.length === 0
+                    ? '<p style="font-size:13px;color:var(--texto-suave)">Sin historial previo</p>'
+                    : p.historial.map(h => `
+            <div class="historial-item">
+              <span class="hist-fecha">${h.fecha}</span>
+              <div><div class="hist-desc">${h.desc}</div><div class="hist-medico">${h.medico}</div></div>
+            </div>`).join('');
+
+                document.getElementById('modal-contenido').innerHTML = `
+          <div class="modal-titulo">Ficha del paciente <button onclick="cerrarModal()"><i class="bi bi-x"></i></button></div>
+          <div class="perfil-header">
+            <div class="perfil-avatar">${id}</div>
+            <div><div class="perfil-nombre">${p.nombre}</div><div class="perfil-sub">CC ${p.cc} &nbsp;·&nbsp; ${p.eps}</div></div>
+          </div>
+          <div class="info-grid">
+            <div class="info-item"><label>Edad</label><span>${p.edad}</span></div>
+            <div class="info-item"><label>Sexo</label><span>${p.sexo}</span></div>
+            <div class="info-item"><label>Tipo de sangre</label><span>${p.sangre}</span></div>
+            <div class="info-item"><label>Teléfono</label><span>${p.telefono}</span></div>
+          </div>
+          <div class="seccion-titulo">Historial de citas</div>
+          ${histHTML}
+          <button class="btn-cita" onclick="window.location='citas.html'">Agendar nueva cita</button>
+        `;
+            }
+            document.getElementById('overlay').classList.add('abierto');
+        }
+
+        function cerrarModal(e) {
+            if (!e || e.target.id === 'overlay') {
+                document.getElementById('overlay').classList.remove('abierto');
+            }
+        }
+
+        function selFiltro(el) {
+            document.querySelectorAll('.filtro').forEach(f => f.classList.remove('activo'));
+            el.classList.add('activo');
+        }
+
+        function buscar(texto) {
+            const tarjetas = document.querySelectorAll('.paciente-card');
+            tarjetas.forEach(t => {
+                const nombre = t.querySelector('.pac-nombre').textContent.toLowerCase();
+                const datos = t.querySelector('.pac-datos').textContent.toLowerCase();
+                t.style.display = (nombre.includes(texto.toLowerCase()) || datos.includes(texto.toLowerCase())) ? 'flex' : 'none';
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>
