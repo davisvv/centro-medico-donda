@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centro Médico DONDA — Iniciar sesión</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* ─── VARIABLES DE COLOR ─── */
+        :root {
+            --verde: #0F6E56;
+            --verde-oscuro: #085041;
+            --verde-claro: #E1F5EE;
+            --gris-fondo: #F4F6F8;
+            --gris-borde: #DEE2E6;
+            --texto: #1A1A2E;
+            --texto-suave: #6C757D;
+        }
+
+        /* ─── RESET Y BASE ─── */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--gris-fondo);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ─── TARJETA PRINCIPAL ─── */
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+
+        /* ─── CABECERA VERDE ─── */
+        .card-header {
+            background: var(--verde);
+            padding: 36px 32px 28px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .card-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        /* ─── SELECTOR DE ROL ─── */
+        .roles {
+            display: flex;
+            gap: 8px;
+            padding: 24px 28px 0;
+        }
+
+        .rol {
+            flex: 1;
+            padding: 10px 6px;
+            border: 1.5px solid var(--gris-borde);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--texto-suave);
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .rol i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .rol.activo {
+            border-color: var(--verde);
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+            font-weight: 600;
+        }
+
+        /* ─── FORMULARIO ─── */
+        .form-area {
+            padding: 20px 28px 32px;
+        }
+
+        .campo {
+            margin-bottom: 16px;
+        }
+
+        .campo label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--texto-suave);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--texto-suave);
+        }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            border: 1.5px solid var(--gris-borde);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--texto);
+            background: var(--gris-fondo);
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--verde);
+            background: #fff;
+        }
+
+        /* ─── BOTÓN PRINCIPAL ─── */
+        .btn-ingresar {
+            width: 100%;
+            padding: 13px;
+            background: var(--verde);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 4px;
+        }
+
+        .btn-ingresar:hover {
+            background: var(--verde-oscuro);
+        }
+
+        /* ─── ENLACE RECUPERAR ─── */
+        .footer-form {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--texto-suave);
+        }
+
+        .footer-form a {
+            color: var(--verde);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .footer-form a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <!-- CABECERA -->
+        <div class="card-header">
+            <div class="logo"><i class="bi bi-heart-pulse"></i></div>
+            <h1>Centro Médico DONDA</h1>
+            <p>Sistema de gestión en salud</p>
+        </div>
+
+        <!-- SELECTOR DE ROL -->
+        <div class="roles">
+            <div class="rol activo" onclick="seleccionarRol(this)">
+                <i class="bi bi-person"></i>Paciente
+            </div>
+            <div class="rol" onclick="seleccionarRol(this)">
+                <i class="bi bi-heart-pulse"></i>Médico
+            </div>
+            <div class="rol" onclick="seleccionarRol(this)">
+                <i class="bi bi-shield-check"></i>Admin
+            </div>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div class="form-area">
+
+            <div class="campo">
+                <label>Correo electrónico</label>
+                <div class="input-wrap">
+                    <i class="bi bi-envelope"></i>
+                    <input type="email" placeholder="tucorreo@ejemplo.com" />
+                </div>
+            </div>
+
+            <div class="campo">
+                <label>Contraseña</label>
+                <div class="input-wrap">
+                    <i class="bi bi-lock"></i>
+                    <input type="password" placeholder="••••••••" />
+                </div>
+            </div>
+
+            <button class="btn-ingresar">Ingresar al sistema</button>
+
+            <div class="footer-form">
+                ¿Olvidaste tu contraseña?
+                <a href="#">Recuperar acceso</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Función para seleccionar el rol activo
+        function seleccionarRol(elemento) {
+            // Quitar la clase activo de todos los roles
+            document.querySelectorAll('.rol').forEach(r => r.classList.remove('activo'));
+            // Ponerla solo al que se hizo clic
+            elemento.classList.add('activo');
+        }
+    </script>
+
+</body>
+
+</html>

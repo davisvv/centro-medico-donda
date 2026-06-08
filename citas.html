@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centro Médico DONDA — Citas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --verde: #0F6E56;
+            --verde-oscuro: #085041;
+            --verde-claro: #E1F5EE;
+            --gris-fondo: #F4F6F8;
+            --gris-borde: #DEE2E6;
+            --texto: #1A1A2E;
+            --texto-suave: #6C757D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--gris-fondo);
+            min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--verde);
+            padding: 16px 24px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar a {
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .topbar-titulo {
+            flex: 1;
+        }
+
+        .topbar-titulo h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topbar-titulo p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 2px;
+        }
+
+        .btn-nueva {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-nueva:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── FILTROS ── */
+        .filtros {
+            display: flex;
+            gap: 8px;
+            padding: 16px 20px 8px;
+            overflow-x: auto;
+        }
+
+        .filtro {
+            padding: 7px 18px;
+            border-radius: 99px;
+            border: 1.5px solid var(--gris-borde);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--texto-suave);
+            cursor: pointer;
+            white-space: nowrap;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .filtro.activo {
+            background: var(--verde);
+            border-color: var(--verde);
+            color: #fff;
+        }
+
+        /* ── LISTA DE CITAS ── */
+        .lista {
+            padding: 8px 20px 100px;
+        }
+
+        .cita-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .cita-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cita-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cita-nombre {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--texto);
+        }
+
+        .cita-tipo {
+            font-size: 12px;
+            color: var(--texto-suave);
+            margin-top: 2px;
+        }
+
+        .cita-badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+            flex-shrink: 0;
+        }
+
+        .badge-verde {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+        }
+
+        .badge-ambar {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .badge-rojo {
+            background: #FCEBEB;
+            color: #A32D2D;
+        }
+
+        .cita-detalles {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid var(--gris-borde);
+        }
+
+        .detalle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--texto-suave);
+        }
+
+        .detalle i {
+            font-size: 14px;
+            color: var(--verde);
+        }
+
+        /* ── ACCIONES ── */
+        .cita-acciones {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn-accion {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1.5px solid var(--gris-borde);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #fff;
+            color: var(--texto-suave);
+            transition: all 0.2s;
+        }
+
+        .btn-accion:hover {
+            border-color: var(--verde);
+            color: var(--verde);
+        }
+
+        .btn-accion.confirmar {
+            background: var(--verde);
+            color: #fff;
+            border-color: var(--verde);
+        }
+
+        .btn-accion.confirmar:hover {
+            background: var(--verde-oscuro);
+        }
+
+        /* ── FAB NUEVA CITA ── */
+        .fab {
+            position: fixed;
+            bottom: 76px;
+            right: 20px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--verde);
+            color: #fff;
+            font-size: 26px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(15, 110, 86, 0.4);
+            transition: background 0.2s;
+            z-index: 99;
+        }
+
+        .fab:hover {
+            background: var(--verde-oscuro);
+        }
+
+        /* ── MODAL NUEVA CITA ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .overlay.abierto {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 28px 24px 40px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-titulo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--texto);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-titulo button {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--texto-suave);
+            cursor: pointer;
+        }
+
+        .campo {
+            margin-bottom: 16px;
+        }
+
+        .campo label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--texto-suave);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .campo input,
+        .campo select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--gris-borde);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--texto);
+            background: var(--gris-fondo);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .campo input:focus,
+        .campo select:focus {
+            border-color: var(--verde);
+            background: #fff;
+        }
+
+        .btn-guardar {
+            width: 100%;
+            padding: 13px;
+            background: var(--verde);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: background 0.2s;
+        }
+
+        .btn-guardar:hover {
+            background: var(--verde-oscuro);
+        }
+
+        /* ── NAV INFERIOR ── */
+        .nav-inferior {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--gris-borde);
+            display: flex;
+            padding: 10px 0 14px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--texto-suave);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item.activo {
+            color: var(--verde);
+        }
+
+        .nav-item:hover {
+            color: var(--verde);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <a href="dashboard.html"><i class="bi bi-arrow-left"></i></a>
+        <div class="topbar-titulo">
+            <h2>Gestión de citas</h2>
+            <p>Sábado 7 de junio de 2025</p>
+        </div>
+        <button class="btn-nueva" onclick="abrirModal()">
+            <i class="bi bi-plus"></i> Nueva
+        </button>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros">
+        <div class="filtro activo" onclick="selFiltro(this)">Hoy</div>
+        <div class="filtro" onclick="selFiltro(this)">Semana</div>
+        <div class="filtro" onclick="selFiltro(this)">Mes</div>
+        <div class="filtro" onclick="selFiltro(this)">Confirmadas</div>
+        <div class="filtro" onclick="selFiltro(this)">Pendientes</div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="lista">
+
+        <!-- CITA 1 -->
+        <div class="cita-card">
+            <div class="cita-top">
+                <div class="cita-avatar">MG</div>
+                <div>
+                    <div class="cita-nombre">María García</div>
+                    <div class="cita-tipo">Consulta general</div>
+                </div>
+                <span class="cita-badge badge-verde">Confirmada</span>
+            </div>
+            <div class="cita-detalles">
+                <div class="detalle"><i class="bi bi-clock"></i> 10:00 AM</div>
+                <div class="detalle"><i class="bi bi-door-open"></i> Cons. 305</div>
+                <div class="detalle"><i class="bi bi-person-badge"></i> CC 12345678</div>
+            </div>
+            <div class="cita-acciones">
+                <button class="btn-accion">Cancelar</button>
+                <button class="btn-accion">Reagendar</button>
+                <button class="btn-accion confirmar">Ver historial</button>
+            </div>
+        </div>
+
+        <!-- CITA 2 -->
+        <div class="cita-card">
+            <div class="cita-top">
+                <div class="cita-avatar">CR</div>
+                <div>
+                    <div class="cita-nombre">Carlos Ríos</div>
+                    <div class="cita-tipo">Control rutinario</div>
+                </div>
+                <span class="cita-badge badge-ambar">Pendiente</span>
+            </div>
+            <div class="cita-detalles">
+                <div class="detalle"><i class="bi bi-clock"></i> 11:30 AM</div>
+                <div class="detalle"><i class="bi bi-door-open"></i> Cons. 301</div>
+                <div class="detalle"><i class="bi bi-person-badge"></i> CC 98765432</div>
+            </div>
+            <div class="cita-acciones">
+                <button class="btn-accion">Cancelar</button>
+                <button class="btn-accion">Reagendar</button>
+                <button class="btn-accion confirmar" onclick="confirmarCita(this)">Confirmar</button>
+            </div>
+        </div>
+
+        <!-- CITA 3 -->
+        <div class="cita-card">
+            <div class="cita-top">
+                <div class="cita-avatar">LM</div>
+                <div>
+                    <div class="cita-nombre">Lucía Mora</div>
+                    <div class="cita-tipo">Revisión de resultados</div>
+                </div>
+                <span class="cita-badge badge-verde">Confirmada</span>
+            </div>
+            <div class="cita-detalles">
+                <div class="detalle"><i class="bi bi-clock"></i> 2:00 PM</div>
+                <div class="detalle"><i class="bi bi-door-open"></i> Cons. 305</div>
+                <div class="detalle"><i class="bi bi-person-badge"></i> CC 11223344</div>
+            </div>
+            <div class="cita-acciones">
+                <button class="btn-accion">Cancelar</button>
+                <button class="btn-accion">Reagendar</button>
+                <button class="btn-accion confirmar">Ver historial</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTÓN FLOTANTE -->
+    <button class="fab" onclick="abrirModal()">
+        <i class="bi bi-plus"></i>
+    </button>
+
+    <!-- MODAL NUEVA CITA -->
+    <div class="overlay" id="overlay" onclick="cerrarModal(event)">
+        <div class="modal">
+            <div class="modal-titulo">
+                Nueva cita
+                <button onclick="cerrarModal()"><i class="bi bi-x"></i></button>
+            </div>
+            <div class="campo">
+                <label>Nombre del paciente</label>
+                <input type="text" placeholder="Ej: Ana Martínez" />
+            </div>
+            <div class="campo">
+                <label>Tipo de consulta</label>
+                <select>
+                    <option>Consulta general</option>
+                    <option>Control rutinario</option>
+                    <option>Revisión de resultados</option>
+                    <option>Urgencia</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Fecha y hora</label>
+                <input type="datetime-local" />
+            </div>
+            <div class="campo">
+                <label>Consultorio</label>
+                <select>
+                    <option>Consultorio 301</option>
+                    <option>Consultorio 305</option>
+                    <option>Consultorio 310</option>
+                </select>
+            </div>
+            <button class="btn-guardar" onclick="guardarCita()">Guardar cita</button>
+        </div>
+    </div>
+
+    <!-- NAV INFERIOR -->
+    <nav class="nav-inferior">
+        <a class="nav-item" href="dashboard.html"><i class="bi bi-house"></i>Inicio</a>
+        <a class="nav-item activo" href="citas.html"><i class="bi bi-calendar"></i>Citas</a>
+        <a class="nav-item" href="#"><i class="bi bi-people"></i>Pacientes</a>
+        <a class="nav-item" href="#"><i class="bi bi-person"></i>Perfil</a>
+    </nav>
+
+    <script>
+        // Seleccionar filtro activo
+        function selFiltro(el) {
+            document.querySelectorAll('.filtro').forEach(f => f.classList.remove('activo'));
+            el.classList.add('activo');
+        }
+
+        // Abrir y cerrar el modal
+        function abrirModal() {
+            document.getElementById('overlay').classList.add('abierto');
+        }
+        function cerrarModal(e) {
+            if (!e || e.target.id === 'overlay') {
+                document.getElementById('overlay').classList.remove('abierto');
+            }
+        }
+
+        // Confirmar una cita pendiente
+        function confirmarCita(btn) {
+            const badge = btn.closest('.cita-card').querySelector('.cita-badge');
+            badge.textContent = 'Confirmada';
+            badge.className = 'cita-badge badge-verde';
+            btn.textContent = 'Ver historial';
+        }
+
+        // Guardar nueva cita (por ahora solo cierra el modal)
+        function guardarCita() {
+            alert('¡Cita guardada exitosamente!');
+            cerrarModal();
+        }
+    </script>
+
+</body>
+
+</html>

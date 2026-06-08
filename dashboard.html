@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centro Médico DONDA — Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --verde: #0F6E56;
+            --verde-oscuro: #085041;
+            --verde-claro: #E1F5EE;
+            --gris-fondo: #F4F6F8;
+            --gris-borde: #DEE2E6;
+            --texto: #1A1A2E;
+            --texto-suave: #6C757D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--gris-fondo);
+            min-height: 100vh;
+        }
+
+        /* ── BARRA SUPERIOR ── */
+        .topbar {
+            background: var(--verde);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-izq h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topbar-izq p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 2px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* ── CONTENIDO PRINCIPAL ── */
+        .contenido {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 20px 100px;
+        }
+
+        /* ── TARJETAS DE ESTADÍSTICAS ── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-icon {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .stat-num {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--texto);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--texto-suave);
+            margin-top: 4px;
+        }
+
+        /* ── SECCIÓN DE CITAS ── */
+        .seccion-titulo {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--texto);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .seccion-titulo a {
+            font-size: 12px;
+            color: var(--verde);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .cita-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .cita-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+        }
+
+        .cita-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cita-nombre {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--texto);
+        }
+
+        .cita-info {
+            font-size: 12px;
+            color: var(--texto-suave);
+            margin-top: 2px;
+        }
+
+        .cita-badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+            flex-shrink: 0;
+        }
+
+        .badge-verde {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+        }
+
+        .badge-ambar {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .badge-rojo {
+            background: #FCEBEB;
+            color: #A32D2D;
+        }
+
+        /* ── NAVEGACIÓN INFERIOR ── */
+        .nav-inferior {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--gris-borde);
+            display: flex;
+            padding: 10px 0 14px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--texto-suave);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item.activo {
+            color: var(--verde);
+        }
+
+        .nav-item:hover {
+            color: var(--verde);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <div class="topbar">
+        <div class="topbar-izq">
+            <h2>Buenos días, Dr. Pérez 👋</h2>
+            <p>Sábado 7 de junio · 3 citas para hoy</p>
+        </div>
+        <div class="avatar">JP</div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="contenido">
+
+        <!-- ESTADÍSTICAS -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="color:#0F6E56"><i class="bi bi-calendar-check"></i></div>
+                <div class="stat-num">3</div>
+                <div class="stat-label">Citas hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:#185FA5"><i class="bi bi-people"></i></div>
+                <div class="stat-num">148</div>
+                <div class="stat-label">Pacientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:#BA7517"><i class="bi bi-clock"></i></div>
+                <div class="stat-num">1</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:#A32D2D"><i class="bi bi-exclamation-circle"></i></div>
+                <div class="stat-num">0</div>
+                <div class="stat-label">Urgencias</div>
+            </div>
+        </div>
+
+        <!-- CITAS DEL DÍA -->
+        <div class="seccion-titulo">
+            Citas de hoy
+            <a href="citas.html">Ver todas →</a>
+        </div>
+
+        <div class="cita-card" onclick="window.location='citas.html'">
+            <div class="cita-avatar">MG</div>
+            <div>
+                <div class="cita-nombre">María García</div>
+                <div class="cita-info"><i class="bi bi-clock"></i> 10:00 AM &nbsp;·&nbsp; Consulta general &nbsp;·&nbsp;
+                    Cons. 305</div>
+            </div>
+            <span class="cita-badge badge-verde">Confirmada</span>
+        </div>
+
+        <div class="cita-card" onclick="window.location='citas.html'">
+            <div class="cita-avatar">CR</div>
+            <div>
+                <div class="cita-nombre">Carlos Ríos</div>
+                <div class="cita-info"><i class="bi bi-clock"></i> 11:30 AM &nbsp;·&nbsp; Control rutinario
+                    &nbsp;·&nbsp; Cons. 301</div>
+            </div>
+            <span class="cita-badge badge-ambar">Pendiente</span>
+        </div>
+
+        <div class="cita-card" onclick="window.location='citas.html'">
+            <div class="cita-avatar">LM</div>
+            <div>
+                <div class="cita-nombre">Lucía Mora</div>
+                <div class="cita-info"><i class="bi bi-clock"></i> 2:00 PM &nbsp;·&nbsp; Revisión resultados
+                    &nbsp;·&nbsp; Cons. 305</div>
+            </div>
+            <span class="cita-badge badge-verde">Confirmada</span>
+        </div>
+
+    </div>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+    <nav class="nav-inferior">
+        <a class="nav-item activo" href="dashboard.html">
+            <i class="bi bi-house"></i>Inicio
+        </a>
+        <a class="nav-item" href="citas.html">
+            <i class="bi bi-calendar"></i>Citas
+        </a>
+        <a class="nav-item" href="#">
+            <i class="bi bi-people"></i>Pacientes
+        </a>
+        <a class="nav-item" href="#">
+            <i class="bi bi-person"></i>Perfil
+        </a>
+    </nav>
+
+</body>
+
+</html>
