@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centro Médico DONDA — Autorizaciones</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --verde: #0F6E56;
+            --verde-oscuro: #085041;
+            --verde-claro: #E1F5EE;
+            --gris-fondo: #F4F6F8;
+            --gris-borde: #DEE2E6;
+            --texto: #1A1A2E;
+            --texto-suave: #6C757D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--gris-fondo);
+            min-height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background: var(--verde);
+            padding: 16px 24px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar a {
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .topbar-titulo {
+            flex: 1;
+        }
+
+        .topbar-titulo h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .topbar-titulo p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 2px;
+        }
+
+        .btn-nuevo {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-nuevo:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── RESUMEN ESTADOS ── */
+        .resumen {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 16px 20px 8px;
+        }
+
+        .res-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .res-num {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--texto);
+        }
+
+        .res-lbl {
+            font-size: 11px;
+            color: var(--texto-suave);
+            margin-top: 3px;
+        }
+
+        .res-icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        /* ── FILTROS ── */
+        .filtros {
+            display: flex;
+            gap: 8px;
+            padding: 8px 20px 12px;
+            overflow-x: auto;
+        }
+
+        .filtro {
+            padding: 6px 16px;
+            border-radius: 99px;
+            border: 1.5px solid var(--gris-borde);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--texto-suave);
+            cursor: pointer;
+            white-space: nowrap;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .filtro.activo {
+            background: var(--verde);
+            border-color: var(--verde);
+            color: #fff;
+        }
+
+        /* ── LISTA ── */
+        .lista {
+            padding: 4px 20px 100px;
+        }
+
+        .aut-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .aut-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+        }
+
+        .aut-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .aut-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .av-verde {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+        }
+
+        .av-azul {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        .av-ambar {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .av-rojo {
+            background: #FCEBEB;
+            color: #A32D2D;
+        }
+
+        .aut-nombre {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--texto);
+        }
+
+        .aut-tipo {
+            font-size: 12px;
+            color: var(--texto-suave);
+            margin-top: 2px;
+        }
+
+        .badge {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+            flex-shrink: 0;
+        }
+
+        .badge-aprobada {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+        }
+
+        .badge-pendiente {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        .badge-rechazada {
+            background: #FCEBEB;
+            color: #A32D2D;
+        }
+
+        .badge-revision {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        .aut-detalles {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid var(--gris-borde);
+        }
+
+        .detalle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--texto-suave);
+        }
+
+        .detalle i {
+            font-size: 14px;
+            color: var(--verde);
+        }
+
+        /* ── LÍNEA DE TIEMPO DE ESTADO ── */
+        .timeline {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: 14px;
+        }
+
+        .tl-paso {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .tl-circulo {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .tl-lbl {
+            font-size: 10px;
+            color: var(--texto-suave);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .tl-linea {
+            flex: 1;
+            height: 2px;
+            margin-bottom: 18px;
+        }
+
+        .paso-hecho {
+            background: var(--verde);
+            color: #fff;
+        }
+
+        .paso-actual {
+            background: #FAEEDA;
+            color: #633806;
+            border: 2px solid #BA7517;
+        }
+
+        .paso-pendiente {
+            background: var(--gris-borde);
+            color: var(--texto-suave);
+        }
+
+        .linea-hecha {
+            background: var(--verde);
+        }
+
+        .linea-pend {
+            background: var(--gris-borde);
+        }
+
+        /* ── MODAL ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .overlay.abierto {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 28px 24px 40px;
+            animation: slideUp 0.3s ease;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-titulo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--texto);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-titulo button {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--texto-suave);
+            cursor: pointer;
+        }
+
+        .campo {
+            margin-bottom: 16px;
+        }
+
+        .campo label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--texto-suave);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .campo input,
+        .campo select,
+        .campo textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--gris-borde);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--texto);
+            background: var(--gris-fondo);
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .campo input:focus,
+        .campo select:focus,
+        .campo textarea:focus {
+            border-color: var(--verde);
+            background: #fff;
+        }
+
+        .campo textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        .btn-solicitar {
+            width: 100%;
+            padding: 13px;
+            background: var(--verde);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: background 0.2s;
+        }
+
+        .btn-solicitar:hover {
+            background: var(--verde-oscuro);
+        }
+
+        .info-bloque {
+            background: var(--gris-fondo);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-fila {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gris-borde);
+            font-size: 13px;
+        }
+
+        .info-fila:last-child {
+            border-bottom: none;
+        }
+
+        .info-fila span:first-child {
+            color: var(--texto-suave);
+        }
+
+        .info-fila span:last-child {
+            font-weight: 600;
+            color: var(--texto);
+        }
+
+        /* ── NAV INFERIOR ── */
+        .nav-inferior {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid var(--gris-borde);
+            display: flex;
+            padding: 10px 0 14px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--texto-suave);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item.activo {
+            color: var(--verde);
+        }
+
+        .nav-item:hover {
+            color: var(--verde);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <a href="dashboard.html"><i class="bi bi-arrow-left"></i></a>
+        <div class="topbar-titulo">
+            <h2>Autorizaciones</h2>
+            <p>Gestión de autorizaciones médicas</p>
+        </div>
+        <button class="btn-nuevo" onclick="abrirNueva()">
+            <i class="bi bi-plus"></i> Nueva
+        </button>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="resumen">
+        <div class="res-card">
+            <div class="res-icon" style="color:#BA7517"><i class="bi bi-clock"></i></div>
+            <div class="res-num">4</div>
+            <div class="res-lbl">Pendientes</div>
+        </div>
+        <div class="res-card">
+            <div class="res-icon" style="color:#0F6E56"><i class="bi bi-check-circle"></i></div>
+            <div class="res-num">12</div>
+            <div class="res-lbl">Aprobadas</div>
+        </div>
+        <div class="res-card">
+            <div class="res-icon" style="color:#A32D2D"><i class="bi bi-x-circle"></i></div>
+            <div class="res-num">2</div>
+            <div class="res-lbl">Rechazadas</div>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros">
+        <div class="filtro activo" onclick="selFiltro(this)">Todas</div>
+        <div class="filtro" onclick="selFiltro(this)">Pendientes</div>
+        <div class="filtro" onclick="selFiltro(this)">Aprobadas</div>
+        <div class="filtro" onclick="selFiltro(this)">Rechazadas</div>
+        <div class="filtro" onclick="selFiltro(this)">En revisión</div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="lista">
+
+        <!-- AUTORIZACIÓN 1 -->
+        <div class="aut-card" onclick="abrirDetalle('A001')">
+            <div class="aut-top">
+                <div class="aut-avatar av-verde">MG</div>
+                <div>
+                    <div class="aut-nombre">María García</div>
+                    <div class="aut-tipo">Cirugía de rodilla — Artroscopia</div>
+                </div>
+                <span class="badge badge-aprobada">Aprobada</span>
+            </div>
+            <div class="aut-detalles">
+                <div class="detalle"><i class="bi bi-hash"></i> AUT-2025-001</div>
+                <div class="detalle"><i class="bi bi-hospital"></i> Sura</div>
+                <div class="detalle"><i class="bi bi-calendar"></i> 05 Jun 2025</div>
+            </div>
+            <div class="timeline">
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">Solicitada</div>
+                </div>
+                <div class="tl-linea linea-hecha"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">En revisión</div>
+                </div>
+                <div class="tl-linea linea-hecha"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">Aprobada</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTORIZACIÓN 2 -->
+        <div class="aut-card" onclick="abrirDetalle('A002')">
+            <div class="aut-top">
+                <div class="aut-avatar av-ambar">CR</div>
+                <div>
+                    <div class="aut-nombre">Carlos Ríos</div>
+                    <div class="aut-tipo">Resonancia magnética — Columna lumbar</div>
+                </div>
+                <span class="badge badge-pendiente">Pendiente</span>
+            </div>
+            <div class="aut-detalles">
+                <div class="detalle"><i class="bi bi-hash"></i> AUT-2025-002</div>
+                <div class="detalle"><i class="bi bi-hospital"></i> Sanitas</div>
+                <div class="detalle"><i class="bi bi-calendar"></i> 07 Jun 2025</div>
+            </div>
+            <div class="timeline">
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">Solicitada</div>
+                </div>
+                <div class="tl-linea linea-hecha"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-actual">2</div>
+                    <div class="tl-lbl">En revisión</div>
+                </div>
+                <div class="tl-linea linea-pend"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-pendiente">3</div>
+                    <div class="tl-lbl">Decisión</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTORIZACIÓN 3 -->
+        <div class="aut-card" onclick="abrirDetalle('A003')">
+            <div class="aut-top">
+                <div class="aut-avatar av-rojo">LM</div>
+                <div>
+                    <div class="aut-nombre">Lucía Mora</div>
+                    <div class="aut-tipo">Medicamento — Insulina Glargina</div>
+                </div>
+                <span class="badge badge-rechazada">Rechazada</span>
+            </div>
+            <div class="aut-detalles">
+                <div class="detalle"><i class="bi bi-hash"></i> AUT-2025-003</div>
+                <div class="detalle"><i class="bi bi-hospital"></i> Nueva EPS</div>
+                <div class="detalle"><i class="bi bi-calendar"></i> 01 Jun 2025</div>
+            </div>
+            <div class="timeline">
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">Solicitada</div>
+                </div>
+                <div class="tl-linea linea-hecha"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">En revisión</div>
+                </div>
+                <div class="tl-linea linea-hecha"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo av-rojo"
+                        style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px">
+                        <i class="bi bi-x"></i>
+                    </div>
+                    <div class="tl-lbl">Rechazada</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTORIZACIÓN 4 -->
+        <div class="aut-card" onclick="abrirDetalle('A004')">
+            <div class="aut-top">
+                <div class="aut-avatar av-azul">JP</div>
+                <div>
+                    <div class="aut-nombre">Jorge Peña</div>
+                    <div class="aut-tipo">Examen — Tomografía abdominal</div>
+                </div>
+                <span class="badge badge-revision">En revisión</span>
+            </div>
+            <div class="aut-detalles">
+                <div class="detalle"><i class="bi bi-hash"></i> AUT-2025-004</div>
+                <div class="detalle"><i class="bi bi-hospital"></i> Compensar</div>
+                <div class="detalle"><i class="bi bi-calendar"></i> 07 Jun 2025</div>
+            </div>
+            <div class="timeline">
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-hecho"><i class="bi bi-check"></i></div>
+                    <div class="tl-lbl">Solicitada</div>
+                </div>
+                <div class="tl-linea linea-hecha"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-actual">2</div>
+                    <div class="tl-lbl">En revisión</div>
+                </div>
+                <div class="tl-linea linea-pend"></div>
+                <div class="tl-paso">
+                    <div class="tl-circulo paso-pendiente">3</div>
+                    <div class="tl-lbl">Decisión</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="overlay" id="overlay" onclick="cerrarModal(event)">
+        <div class="modal" id="modal-contenido"></div>
+    </div>
+
+    <!-- NAV INFERIOR -->
+    <nav class="nav-inferior">
+        <a class="nav-item" href="dashboard.html"><i class="bi bi-house"></i>Inicio</a>
+        <a class="nav-item" href="citas.html"><i class="bi bi-calendar"></i>Citas</a>
+        <a class="nav-item" href="pacientes.html"><i class="bi bi-people"></i>Pacientes</a>
+        <a class="nav-item activo" href="#"><i class="bi bi-shield-check"></i>Autz.</a>
+    </nav>
+
+    <script>
+
+        const autorizaciones = {
+            A001: { paciente: 'María García', cc: '12345678', eps: 'Sura', tipo: 'Cirugía', procedimiento: 'Artroscopia de rodilla derecha', medico: 'Dr. Pérez', fecha: '05 Jun 2025', estado: 'Aprobada', num: 'AUT-2025-001', obs: 'Autorización aprobada. Válida por 30 días.' },
+            A002: { paciente: 'Carlos Ríos', cc: '98765432', eps: 'Sanitas', tipo: 'Imagen diagnóstica', procedimiento: 'Resonancia magnética columna lumbar', medico: 'Dr. Pérez', fecha: '07 Jun 2025', estado: 'Pendiente', num: 'AUT-2025-002', obs: 'En espera de revisión por auditor médico.' },
+            A003: { paciente: 'Lucía Mora', cc: '11223344', eps: 'Nueva EPS', tipo: 'Medicamento', procedimiento: 'Insulina Glargina 100UI/ml', medico: 'Dr. Pérez', fecha: '01 Jun 2025', estado: 'Rechazada', num: 'AUT-2025-003', obs: 'Rechazada: no cumple criterios del plan obligatorio.' },
+            A004: { paciente: 'Jorge Peña', cc: '55667788', eps: 'Compensar', tipo: 'Examen', procedimiento: 'Tomografía computarizada abdominal', medico: 'Dr. Pérez', fecha: '07 Jun 2025', estado: 'En revisión', num: 'AUT-2025-004', obs: 'Documentos en revisión por el comité técnico.' },
+        };
+
+        const badgeClase = { 'Aprobada': 'badge-aprobada', 'Pendiente': 'badge-pendiente', 'Rechazada': 'badge-rechazada', 'En revisión': 'badge-revision' };
+
+        function abrirDetalle(id) {
+            const a = autorizaciones[id];
+            document.getElementById('modal-contenido').innerHTML = `
+        <div class="modal-titulo">Detalle de autorización <button onclick="cerrarModal()"><i class="bi bi-x"></i></button></div>
+        <div class="info-bloque">
+          <div class="info-fila"><span>N° Autorización</span><span>${a.num}</span></div>
+          <div class="info-fila"><span>Paciente</span><span>${a.paciente}</span></div>
+          <div class="info-fila"><span>Cédula</span><span>${a.cc}</span></div>
+          <div class="info-fila"><span>EPS</span><span>${a.eps}</span></div>
+          <div class="info-fila"><span>Tipo</span><span>${a.tipo}</span></div>
+          <div class="info-fila"><span>Procedimiento</span><span>${a.procedimiento}</span></div>
+          <div class="info-fila"><span>Médico solicitante</span><span>${a.medico}</span></div>
+          <div class="info-fila"><span>Fecha solicitud</span><span>${a.fecha}</span></div>
+          <div class="info-fila"><span>Estado</span><span><span class="badge ${badgeClase[a.estado]}">${a.estado}</span></span></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Observaciones</div>
+        <div style="font-size:14px;color:var(--texto);line-height:1.6;margin-bottom:20px">${a.obs}</div>
+        <button class="btn-solicitar" onclick="cerrarModal()"><i class="bi bi-download"></i> Descargar autorización</button>
+      `;
+            document.getElementById('overlay').classList.add('abierto');
+        }
+
+        function abrirNueva() {
+            document.getElementById('modal-contenido').innerHTML = `
+        <div class="modal-titulo">Nueva autorización <button onclick="cerrarModal()"><i class="bi bi-x"></i></button></div>
+        <div class="campo"><label>Paciente</label>
+          <select><option>María García</option><option>Carlos Ríos</option><option>Lucía Mora</option><option>Jorge Peña</option></select></div>
+        <div class="campo"><label>EPS</label>
+          <select><option>Sura</option><option>Sanitas</option><option>Nueva EPS</option><option>Compensar</option></select></div>
+        <div class="campo"><label>Tipo de autorización</label>
+          <select><option>Cirugía</option><option>Imagen diagnóstica</option><option>Medicamento</option><option>Examen de laboratorio</option><option>Remisión especialista</option></select></div>
+        <div class="campo"><label>Procedimiento o medicamento</label>
+          <input type="text" placeholder="Ej: Resonancia magnética columna lumbar"/></div>
+        <div class="campo"><label>Justificación médica</label>
+          <textarea placeholder="Describa la justificación clínica..."></textarea></div>
+        <button class="btn-solicitar" onclick="alert('Autorización enviada a la EPS exitosamente.');cerrarModal()">
+          <i class="bi bi-send"></i> Enviar a EPS
+        </button>
+      `;
+            document.getElementById('overlay').classList.add('abierto');
+        }
+
+        function cerrarModal(e) {
+            if (!e || e.target.id === 'overlay')
+                document.getElementById('overlay').classList.remove('abierto');
+        }
+
+        function selFiltro(el) {
+            document.querySelectorAll('.filtro').forEach(f => f.classList.remove('activo'));
+            el.classList.add('activo');
+        }
+
+    </script>
+
+</body>
+
+</html>
