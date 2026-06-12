@@ -1,0 +1,13 @@
+# Dependencias
+node_modules/
+backend/node_modules/
+
+# Variables de entorno - NUNCA subir esto a GitHub
+.env
+
+# Logs
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
