@@ -10,6 +10,9 @@ const app = express();
 // ── MIDDLEWARES GLOBALES ──
 app.use(cors()); // Permite que el frontend se comunique con el backend
 app.use(express.json()); // Permite recibir datos en formato JSON
+// ── RUTAS ──
+const authRoutes = require("./src/routes/authRoutes");
+app.use("/api/auth", authRoutes);
 
 // ── RUTA DE PRUEBA ──
 app.get("/", (req, res) => {
