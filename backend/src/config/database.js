@@ -1,7 +1,6 @@
 // src/config/database.js
-require("dotenv").config();
-
 const mysql = require("mysql2");
+require("dotenv").config();
 
 const conexion = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -12,7 +11,7 @@ const conexion = mysql.createConnection({
 
 conexion.connect((error) => {
   if (error) {
-    console.error("error conectando a la base de datos:", error);
+    console.error("❌ Error conectando a la base de datos:", error);
     return;
   }
   console.log("✅ Conectado a MySQL correctamente");
