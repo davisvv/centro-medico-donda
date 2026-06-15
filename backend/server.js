@@ -17,6 +17,9 @@ app.use("/api/auth", authRoutes);
 const pacientesRoutes = require("./src/routes/pacientesRoutes");
 app.use("/api/pacientes", pacientesRoutes);
 
+const citasRoutes = require("./src/routes/citasRoutes");
+app.use("/api/citas", citasRoutes);
+
 // ── RUTA DE PRUEBA ──
 app.get("/", (req, res) => {
   res.json({
