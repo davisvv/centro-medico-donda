@@ -20,6 +20,9 @@ app.use("/api/pacientes", pacientesRoutes);
 const citasRoutes = require("./src/routes/citasRoutes");
 app.use("/api/citas", citasRoutes);
 
+const autorizacionesRoutes = require("./src/routes/autorizacionesRoutes");
+app.use("/api/autorizaciones", autorizacionesRoutes);
+
 // ── RUTA DE PRUEBA ──
 app.get("/", (req, res) => {
   res.json({
