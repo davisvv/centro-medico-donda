@@ -14,6 +14,9 @@ app.use(express.json()); // Permite recibir datos en formato JSON
 const authRoutes = require("./src/routes/authRoutes");
 app.use("/api/auth", authRoutes);
 
+const pacientesRoutes = require("./src/routes/pacientesRoutes");
+app.use("/api/pacientes", pacientesRoutes);
+
 // ── RUTA DE PRUEBA ──
 app.get("/", (req, res) => {
   res.json({
