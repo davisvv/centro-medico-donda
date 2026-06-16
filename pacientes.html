@@ -569,6 +569,55 @@
     </nav>
 
     <script>
+        // Cargar pacientes reales de la base de datos
+        async function cargarPacientes() {
+            const token = localStorage.getItem('token');
+
+            try {
+                const respuesta = await fetch('http://localhost:3000/api/pacientes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const pacientes = await respuesta.json();
+
+                // Actualizar contador en topbar
+                document.querySelector('.topbar-titulo p').textContent =
+                    `${pacientes.length} pacientes registrados`;
+
+                // Limpiar lista actual
+                const lista = document.getElementById('lista');
+                lista.innerHTML = '';
+
+                // Generar tarjetas con datos reales
+                pacientes.forEach(p => {
+                    const iniciales = p.nombre.split(' ').map(n => n[0]).join('').slice(0, 2);
+                    const colores = ['av-verde', 'av-azul', 'av-ambar', 'av-rojo'];
+                    const color = colores[p.id % colores.length];
+
+                    lista.innerHTML += `
+        <div class="paciente-card" onclick="abrirModal('${p.id}')">
+          <div class="pac-avatar ${color}">${iniciales}</div>
+          <div class="pac-info">
+            <div class="pac-nombre">${p.nombre}</div>
+            <div class="pac-datos">
+              <i class="bi bi-person-badge"></i> 
+              CC ${p.cedula} &nbsp;·&nbsp; ${p.edad} años &nbsp;·&nbsp; ${p.sexo}
+            </div>
+          </div>
+          <div class="pac-estado">
+            <span class="badge badge-activo">Activo</span>
+            <span class="pac-fecha">EPS: ${p.eps}</span>
+          </div>
+        </div>
+      `;
+                });
+
+            } catch (error) {
+                console.error('Error cargando pacientes:', error);
+            }
+        }
+
+        // Ejecutar al cargar
+        cargarPacientes();
 
         // Datos de los pacientes
         const pacientes = {
