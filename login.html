@@ -251,16 +251,46 @@
     </div>
 
     <script>
-        // Función para seleccionar el rol activo
+        // Seleccionar rol activo
         function seleccionarRol(elemento) {
-            // Quitar la clase activo de todos los roles
             document.querySelectorAll('.rol').forEach(r => r.classList.remove('activo'));
-            // Ponerla solo al que se hizo clic
             elemento.classList.add('activo');
         }
-        function ingresar() {
-            const rol = document.querySelector('.rol.activo').textContent.trim();
-            window.location.href = 'dashboard.html';
+
+        // Función de login conectada al backend
+        async function ingresar() {
+            const correo = document.querySelector('input[type="email"]').value;
+            const contrasena = document.querySelector('input[type="password"]').value;
+
+            if (!correo || !contrasena) {
+                alert('Por favor ingresa tu correo y contraseña');
+                return;
+            }
+
+            try {
+                const respuesta = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correo, contrasena })
+                });
+
+                const datos = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    alert(datos.error);
+                    return;
+                }
+
+                // Guardar token y datos del usuario
+                localStorage.setItem('token', datos.token);
+                localStorage.setItem('usuario', JSON.stringify(datos.usuario));
+
+                // Ir al dashboard
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                alert('Error al conectar con el servidor');
+            }
         }
     </script>
 

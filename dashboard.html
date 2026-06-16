@@ -321,6 +321,36 @@
         </a>
     </nav>
 
+    <script>
+        // Cargar datos reales del dashboard
+        async function cargarDashboard() {
+            const token = localStorage.getItem('token');
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+            // Mostrar nombre del médico
+            if (usuario) {
+                document.querySelector('.topbar-izq h2').textContent =
+                    `Buenos días, ${usuario.nombre} 👋`;
+            }
+
+            try {
+                // Cargar citas de hoy
+                const respuesta = await fetch('http://localhost:3000/api/citas/hoy', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const citas = await respuesta.json();
+
+                // Actualizar contador
+                document.querySelector('.stat-num').textContent = citas.length;
+
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+            }
+        }
+
+        // Ejecutar al cargar la página
+        cargarDashboard();
+    </script>
 </body>
 
 </html>
