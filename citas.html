@@ -543,6 +543,110 @@
     </nav>
 
     <script>
+        // Cargar citas reales de la base de datos
+        async function cargarCitas() {
+            const token = localStorage.getItem('token');
+
+            try {
+                const respuesta = await fetch('http://localhost:3000/api/citas/hoy', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const citas = await respuesta.json();
+
+                // Limpiar lista actual
+                const lista = document.querySelector('.lista');
+                lista.innerHTML = '';
+
+                if (citas.length === 0) {
+                    lista.innerHTML = `
+        <div style="text-align:center; padding: 40px; color: var(--texto-suave)">
+          <i class="bi bi-calendar-x" style="font-size:48px"></i>
+          <p style="margin-top:12px">No hay citas para hoy</p>
+        </div>`;
+                    return;
+                }
+
+                // Generar tarjetas con datos reales
+                citas.forEach(c => {
+                    const iniciales = c.paciente_nombre.split(' ').map(n => n[0]).join('').slice(0, 2);
+                    const hora = new Date(c.fecha_hora).toLocaleTimeString('es-CO', {
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                    const badgeClase = c.estado === 'Confirmada' ? 'badge-verde' :
+                        c.estado === 'Pendiente' ? 'badge-ambar' : 'badge-rojo';
+
+                    lista.innerHTML += `
+        <div class="cita-card">
+          <div class="cita-top">
+            <div class="cita-avatar">${iniciales}</div>
+            <div>
+              <div class="cita-nombre">${c.paciente_nombre}</div>
+              <div class="cita-tipo">${c.tipo}</div>
+            </div>
+            <span class="cita-badge ${badgeClase}">${c.estado}</span>
+          </div>
+          <div class="cita-detalles">
+            <div class="detalle"><i class="bi bi-clock"></i> ${hora}</div>
+            <div class="detalle"><i class="bi bi-door-open"></i> ${c.consultorio}</div>
+            <div class="detalle"><i class="bi bi-person-badge"></i> CC ${c.paciente_cedula}</div>
+          </div>
+          <div class="cita-acciones">
+            <button class="btn-accion" onclick="cancelarCita(${c.id})">Cancelar</button>
+            <button class="btn-accion">Reagendar</button>
+            <button class="btn-accion confirmar" onclick="confirmarCita(${c.id})">
+              ${c.estado === 'Confirmada' ? 'Ver historial' : 'Confirmar'}
+            </button>
+          </div>
+        </div>
+      `;
+                });
+
+            } catch (error) {
+                console.error('Error cargando citas:', error);
+            }
+        }
+
+        // Confirmar cita en la base de datos
+        async function confirmarCita(id) {
+            const token = localStorage.getItem('token');
+            try {
+                const respuesta = await fetch(`http://localhost:3000/api/citas/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ estado: 'Confirmada' })
+                });
+                const datos = await respuesta.json();
+                console.log(datos.mensaje);
+                cargarCitas();
+            } catch (error) {
+                console.error('Error confirmando cita:', error);
+            }
+        }
+        // Cancelar cita en la base de datos
+        async function cancelarCita(id) {
+            const token = localStorage.getItem('token');
+            if (!confirm('¿Estás seguro de cancelar esta cita?')) return;
+            try {
+                await fetch(`http://localhost:3000/api/citas/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ estado: 'Cancelada' })
+                });
+                cargarCitas();
+            } catch (error) {
+                console.error('Error cancelando cita:', error);
+            }
+        }
+
+        // Ejecutar al cargar
+        cargarCitas();
+
         // Seleccionar filtro activo
         function selFiltro(el) {
             document.querySelectorAll('.filtro').forEach(f => f.classList.remove('activo'));
@@ -559,12 +663,24 @@
             }
         }
 
-        // Confirmar una cita pendiente
-        function confirmarCita(btn) {
-            const badge = btn.closest('.cita-card').querySelector('.cita-badge');
-            badge.textContent = 'Confirmada';
-            badge.className = 'cita-badge badge-verde';
-            btn.textContent = 'Ver historial';
+        // Confirmar una cita pendiente - conectado al backend
+        async function confirmarCita(id) {
+            const token = localStorage.getItem('token');
+            try {
+                const respuesta = await fetch(`http://localhost:3000/api/citas/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ estado: 'Confirmada' })
+                });
+                const datos = await respuesta.json();
+                console.log(datos.mensaje);
+                cargarCitas();
+            } catch (error) {
+                console.error('Error confirmando cita:', error);
+            }
         }
 
         // Guardar nueva cita (por ahora solo cierra el modal)
