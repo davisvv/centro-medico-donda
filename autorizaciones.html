@@ -699,7 +699,77 @@
     </nav>
 
     <script>
+        // Cargar autorizaciones reales de la base de datos
+        async function cargarAutorizaciones() {
+            const token = localStorage.getItem('token');
 
+            try {
+                const respuesta = await fetch('http://localhost:3000/api/autorizaciones', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const autorizaciones = await respuesta.json();
+
+                // Actualizar contadores
+                const pendientes = autorizaciones.filter(a => a.estado === 'Pendiente').length;
+                const aprobadas = autorizaciones.filter(a => a.estado === 'Aprobada').length;
+                const rechazadas = autorizaciones.filter(a => a.estado === 'Rechazada').length;
+
+                const nums = document.querySelectorAll('.res-num');
+                nums[0].textContent = pendientes;
+                nums[1].textContent = aprobadas;
+                nums[2].textContent = rechazadas;
+
+                // Limpiar lista
+                const lista = document.querySelector('.lista');
+                lista.innerHTML = '';
+
+                if (autorizaciones.length === 0) {
+                    lista.innerHTML = `
+        <div style="text-align:center; padding:40px; color:var(--texto-suave)">
+          <i class="bi bi-shield-x" style="font-size:48px"></i>
+          <p style="margin-top:12px">No hay autorizaciones registradas</p>
+        </div>`;
+                    return;
+                }
+
+                // Generar tarjetas
+                autorizaciones.forEach(a => {
+                    const iniciales = a.paciente_nombre.split(' ').map(n => n[0]).join('').slice(0, 2);
+                    const badgeClase = {
+                        'Aprobada': 'badge-aprobada',
+                        'Pendiente': 'badge-pendiente',
+                        'Rechazada': 'badge-rechazada',
+                        'En revisión': 'badge-revision'
+                    }[a.estado] || 'badge-pendiente';
+
+                    lista.innerHTML += `
+        <div class="aut-card" onclick="abrirDetalle('${a.id}')">
+          <div class="aut-top">
+            <div class="aut-avatar av-verde">${iniciales}</div>
+            <div>
+              <div class="aut-nombre">${a.paciente_nombre}</div>
+              <div class="aut-tipo">${a.tipo} — ${a.procedimiento}</div>
+            </div>
+            <span class="badge ${badgeClase}">${a.estado}</span>
+          </div>
+          <div class="aut-detalles">
+            <div class="detalle"><i class="bi bi-hash"></i> ${a.numero}</div>
+            <div class="detalle"><i class="bi bi-hospital"></i> ${a.eps}</div>
+            <div class="detalle"><i class="bi bi-calendar"></i> 
+              ${new Date(a.creado_en).toLocaleDateString('es-CO')}
+            </div>
+          </div>
+        </div>
+      `;
+                });
+
+            } catch (error) {
+                console.error('Error cargando autorizaciones:', error);
+            }
+        }
+
+        // Ejecutar al cargar
+        cargarAutorizaciones();
         const autorizaciones = {
             A001: { paciente: 'María García', cc: '12345678', eps: 'Sura', tipo: 'Cirugía', procedimiento: 'Artroscopia de rodilla derecha', medico: 'Dr. Pérez', fecha: '05 Jun 2025', estado: 'Aprobada', num: 'AUT-2025-001', obs: 'Autorización aprobada. Válida por 30 días.' },
             A002: { paciente: 'Carlos Ríos', cc: '98765432', eps: 'Sanitas', tipo: 'Imagen diagnóstica', procedimiento: 'Resonancia magnética columna lumbar', medico: 'Dr. Pérez', fecha: '07 Jun 2025', estado: 'Pendiente', num: 'AUT-2025-002', obs: 'En espera de revisión por auditor médico.' },
