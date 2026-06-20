@@ -6,11 +6,13 @@ import {
   ScrollView,
   StatusBar,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 
 export default function CitasScreen({ route }) {
   const { token } = route.params;
   const [citas, setCitas] = useState([]);
+  const [procesando, setProcesando] = useState({});
 
   useEffect(() => {
     cargarCitas();
@@ -24,11 +26,12 @@ export default function CitasScreen({ route }) {
       const datos = await respuesta.json();
       setCitas(datos);
     } catch (error) {
-      console.log("Error cargando citas:", error);
+      Alert.alert("Error", "No se pudo cargar la lista de citas. Verifica tu conexión.");
     }
   };
 
   const actualizarEstado = async (id, estado) => {
+    setProcesando((prev) => ({ ...prev, [id]: estado }));
     try {
       const respuesta = await fetch(
         `http://192.168.1.79:3000/api/citas/${id}`,
@@ -41,14 +44,38 @@ export default function CitasScreen({ route }) {
           body: JSON.stringify({ estado }),
         }
       );
-      if (respuesta.ok) {
-        setCitas((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, estado } : c))
-        );
+
+      if (!respuesta.ok) {
+        const datos = await respuesta.json();
+        Alert.alert("Error", datos.error || "No se pudo actualizar la cita.");
+        return;
       }
+
+      await cargarCitas();
     } catch (error) {
-      console.log("Error actualizando cita:", error);
+      Alert.alert("Error", "No se pudo conectar con el servidor. Verifica tu conexión.");
+    } finally {
+      setProcesando((prev) => {
+        const nuevo = { ...prev };
+        delete nuevo[id];
+        return nuevo;
+      });
     }
+  };
+
+  const confirmarCancelacion = (id) => {
+    Alert.alert(
+      "Cancelar cita",
+      "¿Estás seguro de que deseas cancelar esta cita?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Sí, cancelar",
+          style: "destructive",
+          onPress: () => actualizarEstado(id, "Cancelada"),
+        },
+      ]
+    );
   };
 
   const iniciales = (nombre) =>
@@ -72,59 +99,92 @@ export default function CitasScreen({ route }) {
         </Text>
       </View>
 
-      <ScrollView style={estilos.contenido}>
+      <ScrollView style={estilos.contenido} showsVerticalScrollIndicator={false}>
         {citas.length === 0 && (
           <Text style={estilos.vacio}>No hay citas para hoy</Text>
         )}
 
-        {citas.map((cita) => (
-          <View key={cita.id} style={estilos.card}>
-            <View style={estilos.cardHeader}>
-              <View style={estilos.avatar}>
-                <Text style={estilos.avatarTexto}>
-                  {iniciales(cita.paciente_nombre)}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={estilos.nombre}>{cita.paciente_nombre}</Text>
-                <Text style={estilos.info}>
-                  {cita.tipo} · {cita.consultorio}
-                </Text>
-              </View>
-              <View
-                style={[
-                  estilos.badge,
-                  cita.estado === "Confirmada"
-                    ? estilos.badgeVerde
-                    : cita.estado === "Cancelada"
-                    ? estilos.badgeRojo
-                    : estilos.badgeAmbar,
-                ]}
-              >
-                <Text style={estilos.badgeTexto}>{cita.estado}</Text>
-              </View>
-            </View>
+        {citas.map((cita) => {
+          const enProceso = !!procesando[cita.id];
+          const accionActual = procesando[cita.id];
 
-            {cita.estado !== "Cancelada" && (
-              <View style={estilos.acciones}>
-                {cita.estado !== "Confirmada" && (
-                  <TouchableOpacity
-                    style={estilos.botonConfirmar}
-                    onPress={() => actualizarEstado(cita.id, "Confirmada")}
-                  >
-                    <Text style={estilos.botonTexto}>Confirmar</Text>
-                  </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                  style={estilos.botonCancelar}
-                  onPress={() => actualizarEstado(cita.id, "Cancelada")}
+          return (
+            <View key={cita.id} style={estilos.card}>
+              <View style={estilos.cardHeader}>
+                <View style={estilos.avatar}>
+                  <Text style={estilos.avatarTexto}>
+                    {iniciales(cita.paciente_nombre)}
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={estilos.nombre}>{cita.paciente_nombre}</Text>
+                  <Text style={estilos.info}>
+                    {cita.tipo} · {cita.consultorio}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    estilos.badge,
+                    cita.estado === "Confirmada"
+                      ? estilos.badgeVerde
+                      : cita.estado === "Cancelada"
+                      ? estilos.badgeRojo
+                      : estilos.badgeAmbar,
+                  ]}
                 >
-                  <Text style={estilos.botonCancelarTexto}>Cancelar</Text>
-                </TouchableOpacity>
+                  <Text style={estilos.badgeTexto}>{cita.estado}</Text>
+                </View>
               </View>
-            )}
-          </View>
-        ))}
+
+              {cita.estado === "Pendiente" && (
+                <View style={estilos.acciones}>
+                  <TouchableOpacity
+                    style={[
+                      estilos.botonConfirmar,
+                      enProceso && estilos.botonDeshabilitado,
+                    ]}
+                    onPress={() => actualizarEstado(cita.id, "Confirmada")}
+                    disabled={enProceso}
+                  >
+                    <Text style={estilos.botonTexto}>
+                      {accionActual === "Confirmada" ? "Confirmando..." : "Confirmar"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      estilos.botonCancelar,
+                      enProceso && estilos.botonCancelarDeshabilitado,
+                    ]}
+                    onPress={() => confirmarCancelacion(cita.id)}
+                    disabled={enProceso}
+                  >
+                    <Text style={estilos.botonCancelarTexto}>
+                      {accionActual === "Cancelada" ? "Cancelando..." : "Cancelar"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {cita.estado === "Confirmada" && (
+                <View style={estilos.acciones}>
+                  <TouchableOpacity
+                    style={[
+                      estilos.botonCancelar,
+                      enProceso && estilos.botonCancelarDeshabilitado,
+                    ]}
+                    onPress={() => confirmarCancelacion(cita.id)}
+                    disabled={enProceso}
+                  >
+                    <Text style={estilos.botonCancelarTexto}>
+                      {accionActual === "Cancelada" ? "Cancelando..." : "Cancelar cita"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -180,18 +240,24 @@ const estilos = StyleSheet.create({
   botonConfirmar: {
     flex: 1,
     backgroundColor: "#0F6E56",
-    borderRadius: 8,
-    paddingVertical: 10,
+    borderRadius: 12,
+    paddingVertical: 12,
     alignItems: "center",
+  },
+  botonDeshabilitado: {
+    backgroundColor: "#A8D5C2",
   },
   botonCancelar: {
     flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingVertical: 10,
+    borderRadius: 12,
+    paddingVertical: 12,
     alignItems: "center",
     borderWidth: 1.5,
     borderColor: "#DEE2E6",
+  },
+  botonCancelarDeshabilitado: {
+    borderColor: "#F0F0F0",
   },
   botonTexto: { color: "#fff", fontSize: 13, fontWeight: "600" },
   botonCancelarTexto: { color: "#6C757D", fontSize: 13, fontWeight: "600" },
