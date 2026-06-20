@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  TouchableOpacity,
+} from "react-native";
 
-export default function DashboardScreen({ route }) {
+export default function DashboardScreen({ route, navigation }) {
   const { token, usuario } = route.params;
   const [citasHoy, setCitasHoy] = useState([]);
 
@@ -37,6 +44,22 @@ export default function DashboardScreen({ route }) {
           <Text style={estilos.statNum}>{citasHoy.length}</Text>
           <Text style={estilos.statLabel}>Citas hoy</Text>
         </View>
+
+        {/* ACCESO RÁPIDO */}
+        <Text style={estilos.seccionTitulo}>Acceso rápido</Text>
+        <TouchableOpacity
+          style={estilos.accesoCard}
+          onPress={() => navigation.navigate("Autorizaciones", { token, usuario })}
+        >
+          <View style={estilos.accesoIcono}>
+            <Text style={{ fontSize: 22 }}>📋</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={estilos.accesoTitulo}>Autorizaciones</Text>
+            <Text style={estilos.accesoSub}>Revisar solicitudes pendientes</Text>
+          </View>
+          <Text style={estilos.accesoFlecha}>›</Text>
+        </TouchableOpacity>
 
         {/* LISTA DE CITAS */}
         <Text style={estilos.seccionTitulo}>Citas de hoy</Text>
@@ -106,6 +129,26 @@ const estilos = StyleSheet.create({
     marginBottom: 12,
   },
   vacio: { fontSize: 14, color: "#6C757D", textAlign: "center", marginTop: 20 },
+  accesoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  accesoIcono: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "#E1F5EE",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  accesoTitulo: { fontSize: 14, fontWeight: "600", color: "#1A1A2E" },
+  accesoSub: { fontSize: 12, color: "#6C757D", marginTop: 2 },
+  accesoFlecha: { fontSize: 22, color: "#6C757D", fontWeight: "300" },
   citaCard: {
     backgroundColor: "#fff",
     borderRadius: 14,
