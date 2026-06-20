@@ -7,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function DashboardScreen({ route, navigation }) {
   const { token, usuario } = route.params;
@@ -52,7 +53,7 @@ export default function DashboardScreen({ route, navigation }) {
           onPress={() => navigation.navigate("Autorizaciones", { token, usuario })}
         >
           <View style={estilos.accesoIcono}>
-            <Text style={{ fontSize: 22 }}>📋</Text>
+            <Ionicons name="shield-checkmark-outline" size={22} color="#0F6E56" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={estilos.accesoTitulo}>Autorizaciones</Text>

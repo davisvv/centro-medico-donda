@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Text } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import LoginScreen from "./screens/LoginScreen";
 import DashboardScreen from "./screens/DashboardScreen";
@@ -14,15 +14,12 @@ import PerfilScreen from "./screens/PerfilScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ label, focused }) {
-  const iconos = {
-    Dashboard: focused ? "🏠" : "🏠",
-    Citas: focused ? "📅" : "📅",
-    Pacientes: focused ? "👥" : "👥",
-    Perfil: focused ? "👤" : "👤",
-  };
-  return <Text style={{ fontSize: 20 }}>{iconos[label]}</Text>;
-}
+const TAB_ICONS = {
+  Dashboard: { active: "home", inactive: "home-outline" },
+  Citas:     { active: "calendar", inactive: "calendar-outline" },
+  Pacientes: { active: "people", inactive: "people-outline" },
+  Perfil:    { active: "person", inactive: "person-outline" },
+};
 
 function MainTabs({ route }) {
   const { token, usuario } = route.params;
@@ -42,9 +39,16 @@ function MainTabs({ route }) {
           paddingTop: 6,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={tabRoute.name} focused={focused} />
-        ),
+        tabBarIcon: ({ focused }) => {
+          const { active, inactive } = TAB_ICONS[tabRoute.name] ?? {};
+          return (
+            <Ionicons
+              name={focused ? active : inactive}
+              size={24}
+              color={focused ? "#0F6E56" : "#9CA3AF"}
+            />
+          );
+        },
       })}
     >
       <Tab.Screen name="Dashboard">
