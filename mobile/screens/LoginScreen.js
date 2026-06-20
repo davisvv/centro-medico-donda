@@ -7,6 +7,7 @@ import {
   StyleSheet,
   StatusBar,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }) {
   const [rolActivo, setRolActivo] = useState("Paciente");
@@ -36,8 +37,10 @@ export default function LoginScreen({ navigation }) {
         return;
       }
 
-      // Navegar al dashboard pasando los datos del usuario y token
-      navigation.navigate("Dashboard", {
+      await AsyncStorage.setItem("token", datos.token);
+      await AsyncStorage.setItem("usuario", JSON.stringify(datos.usuario));
+
+      navigation.navigate("Main", {
         token: datos.token,
         usuario: datos.usuario,
       });

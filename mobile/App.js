@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import LoginScreen from "./screens/LoginScreen";
 import DashboardScreen from "./screens/DashboardScreen";
@@ -20,6 +27,22 @@ const TAB_ICONS = {
   Pacientes: { active: "people", inactive: "people-outline" },
   Perfil:    { active: "person", inactive: "person-outline" },
 };
+
+function SplashScreen() {
+  return (
+    <View style={estilos.splash}>
+      <View style={estilos.splashLogo}>
+        <Text style={estilos.splashLogoTexto}>+</Text>
+      </View>
+      <Text style={estilos.splashTitulo}>Centro Médico DONDA</Text>
+      <ActivityIndicator
+        color="rgba(255,255,255,0.7)"
+        size="small"
+        style={{ marginTop: 40 }}
+      />
+    </View>
+  );
+}
 
 function MainTabs({ route }) {
   const { token, usuario } = route.params;
@@ -76,9 +99,34 @@ function MainTabs({ route }) {
 }
 
 export default function App() {
+  const [cargando, setCargando] = useState(true);
+  const [sesionGuardada, setSesionGuardada] = useState(null);
+
+  useEffect(() => {
+    verificarSesion();
+  }, []);
+
+  const verificarSesion = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const usuarioJSON = await AsyncStorage.getItem("usuario");
+      if (token && usuarioJSON) {
+        setSesionGuardada({ token, usuario: JSON.parse(usuarioJSON) });
+      }
+    } catch (e) {
+      console.log("Error leyendo sesión:", e);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  if (cargando) return <SplashScreen />;
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator
+        initialRouteName={sesionGuardada ? "Main" : "Login"}
+      >
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -86,9 +134,17 @@ export default function App() {
         />
         <Stack.Screen
           name="Main"
-          component={MainTabs}
           options={{ headerShown: false }}
-        />
+        >
+          {(props) => (
+            <MainTabs
+              {...props}
+              route={{
+                params: sesionGuardada ?? props.route.params,
+              }}
+            />
+          )}
+        </Stack.Screen>
         <Stack.Screen
           name="Autorizaciones"
           component={AutorizacionesScreen}
@@ -103,3 +159,23 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+const estilos = StyleSheet.create({
+  splash: {
+    flex: 1,
+    backgroundColor: "#0F6E56",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  splashLogo: {
+    width: 72,
+    height: 72,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  splashLogoTexto: { fontSize: 32, color: "#fff" },
+  splashTitulo: { fontSize: 20, fontWeight: "600", color: "#fff" },
+});

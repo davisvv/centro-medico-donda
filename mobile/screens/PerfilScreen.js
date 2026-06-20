@@ -6,9 +6,12 @@ import {
   StatusBar,
   TouchableOpacity,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function PerfilScreen({ navigation, usuario }) {
-  const cerrarSesion = () => {
+  const cerrarSesion = async () => {
+    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem("usuario");
     navigation.reset({
       index: 0,
       routes: [{ name: "Login" }],
