@@ -35,7 +35,7 @@ export default function DashboardScreen({ route, navigation }) {
 
       {/* TOPBAR */}
       <View style={estilos.topbar}>
-        <Text style={estilos.saludo}>Buenos días, {usuario.nombre} 👋</Text>
+        <Text style={estilos.saludo}>Buenos días, {usuario.nombre}</Text>
         <Text style={estilos.fecha}>{citasHoy.length} citas para hoy</Text>
       </View>
 
