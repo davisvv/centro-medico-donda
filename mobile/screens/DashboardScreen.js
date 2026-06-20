@@ -1,0 +1,133 @@
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, StatusBar } from "react-native";
+
+export default function DashboardScreen({ route }) {
+  const { token, usuario } = route.params;
+  const [citasHoy, setCitasHoy] = useState([]);
+
+  useEffect(() => {
+    cargarCitas();
+  }, []);
+
+  const cargarCitas = async () => {
+    try {
+      const respuesta = await fetch("http://192.168.253.2:3000/api/citas/hoy", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const datos = await respuesta.json();
+      setCitasHoy(datos);
+    } catch (error) {
+      console.log("Error cargando citas:", error);
+    }
+  };
+
+  return (
+    <View style={estilos.contenedor}>
+      <StatusBar barStyle="light-content" />
+
+      {/* TOPBAR */}
+      <View style={estilos.topbar}>
+        <Text style={estilos.saludo}>Buenos días, {usuario.nombre} 👋</Text>
+        <Text style={estilos.fecha}>{citasHoy.length} citas para hoy</Text>
+      </View>
+
+      <ScrollView style={estilos.contenido}>
+        {/* ESTADÍSTICA PRINCIPAL */}
+        <View style={estilos.statCard}>
+          <Text style={estilos.statNum}>{citasHoy.length}</Text>
+          <Text style={estilos.statLabel}>Citas hoy</Text>
+        </View>
+
+        {/* LISTA DE CITAS */}
+        <Text style={estilos.seccionTitulo}>Citas de hoy</Text>
+
+        {citasHoy.length === 0 && (
+          <Text style={estilos.vacio}>No hay citas para hoy</Text>
+        )}
+
+        {citasHoy.map((cita) => (
+          <View key={cita.id} style={estilos.citaCard}>
+            <View style={estilos.citaAvatar}>
+              <Text style={estilos.citaAvatarTexto}>
+                {cita.paciente_nombre
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)}
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={estilos.citaNombre}>{cita.paciente_nombre}</Text>
+              <Text style={estilos.citaInfo}>
+                {cita.tipo} · {cita.consultorio}
+              </Text>
+            </View>
+            <View
+              style={[
+                estilos.badge,
+                cita.estado === "Confirmada"
+                  ? estilos.badgeVerde
+                  : estilos.badgeAmbar,
+              ]}
+            >
+              <Text style={estilos.badgeTexto}>{cita.estado}</Text>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+const estilos = StyleSheet.create({
+  contenedor: { flex: 1, backgroundColor: "#F4F6F8" },
+  topbar: {
+    backgroundColor: "#0F6E56",
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  saludo: { fontSize: 18, fontWeight: "600", color: "#fff" },
+  fecha: { fontSize: 13, color: "rgba(255,255,255,0.75)", marginTop: 4 },
+  contenido: { padding: 20 },
+  statCard: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 20,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  statNum: { fontSize: 36, fontWeight: "700", color: "#0F6E56" },
+  statLabel: { fontSize: 13, color: "#6C757D", marginTop: 4 },
+  seccionTitulo: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1A1A2E",
+    marginBottom: 12,
+  },
+  vacio: { fontSize: 14, color: "#6C757D", textAlign: "center", marginTop: 20 },
+  citaCard: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  citaAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#E1F5EE",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  citaAvatarTexto: { color: "#085041", fontWeight: "700", fontSize: 13 },
+  citaNombre: { fontSize: 14, fontWeight: "600", color: "#1A1A2E" },
+  citaInfo: { fontSize: 12, color: "#6C757D", marginTop: 2 },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 },
+  badgeVerde: { backgroundColor: "#E1F5EE" },
+  badgeAmbar: { backgroundColor: "#FAEEDA" },
+  badgeTexto: { fontSize: 11, fontWeight: "600", color: "#085041" },
+});
