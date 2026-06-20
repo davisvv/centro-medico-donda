@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function CitasScreen({ route }) {
   const { token } = route.params;
   const [citas, setCitas] = useState([]);
   const [procesando, setProcesando] = useState({});
+  const [modalCancelar, setModalCancelar] = useState({ visible: false, citaId: null });
 
   useEffect(() => {
     cargarCitas();
@@ -64,18 +66,7 @@ export default function CitasScreen({ route }) {
   };
 
   const confirmarCancelacion = (id) => {
-    Alert.alert(
-      "Cancelar cita",
-      "¿Estás seguro de que deseas cancelar esta cita?",
-      [
-        { text: "No", style: "cancel" },
-        {
-          text: "Sí, cancelar",
-          style: "destructive",
-          onPress: () => actualizarEstado(id, "Cancelada"),
-        },
-      ]
-    );
+    setModalCancelar({ visible: true, citaId: id });
   };
 
   const iniciales = (nombre) =>
@@ -186,6 +177,21 @@ export default function CitasScreen({ route }) {
           );
         })}
       </ScrollView>
+
+      <ConfirmModal
+        visible={modalCancelar.visible}
+        title="Cancelar cita"
+        message="¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer."
+        confirmText="Sí, cancelar"
+        cancelText="Volver"
+        type="danger"
+        onCancel={() => setModalCancelar({ visible: false, citaId: null })}
+        onConfirm={() => {
+          const id = modalCancelar.citaId;
+          setModalCancelar({ visible: false, citaId: null });
+          actualizarEstado(id, "Cancelada");
+        }}
+      />
     </View>
   );
 }
