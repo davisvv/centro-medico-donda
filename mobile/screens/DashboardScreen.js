@@ -26,7 +26,7 @@ export default function DashboardScreen({ route, navigation }) {
 
   const cargarCitas = async () => {
     try {
-      const respuesta = await fetch("http://192.168.253.2:3000/api/citas/hoy", {
+      const respuesta = await fetch("http://192.168.1.79:3000/api/citas/hoy", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const datos = await respuesta.json();

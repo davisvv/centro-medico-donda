@@ -20,7 +20,7 @@ export default function PacientesScreen({ route }) {
 
   const cargarPacientes = async () => {
     try {
-      const respuesta = await fetch("http://192.168.253.2:3000/api/pacientes", {
+      const respuesta = await fetch("http://192.168.1.79:3000/api/pacientes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const datos = await respuesta.json();
