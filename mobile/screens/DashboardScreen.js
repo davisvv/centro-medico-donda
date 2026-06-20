@@ -9,6 +9,13 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+function saludo() {
+  const hora = new Date().getHours();
+  if (hora < 12) return "Buenos días";
+  if (hora < 19) return "Buenas tardes";
+  return "Buenas noches";
+}
+
 export default function DashboardScreen({ route, navigation }) {
   const { token, usuario } = route.params;
   const [citasHoy, setCitasHoy] = useState([]);
@@ -35,7 +42,7 @@ export default function DashboardScreen({ route, navigation }) {
 
       {/* TOPBAR */}
       <View style={estilos.topbar}>
-        <Text style={estilos.saludo}>Buenos días, {usuario.nombre}</Text>
+        <Text style={estilos.saludo}>{saludo()}, {usuario.nombre}</Text>
         <Text style={estilos.fecha}>{citasHoy.length} citas para hoy</Text>
       </View>
 
