@@ -16,10 +16,10 @@ const obtenerAutorizaciones = (req, res) => {
       FROM autorizaciones a
       JOIN pacientes p ON a.paciente_id = p.id
       JOIN usuarios  u ON a.medico_id   = u.id
-      WHERE p.correo = (SELECT correo FROM usuarios WHERE id = ?)
+      WHERE a.paciente_id = ?
       ORDER BY a.creado_en DESC
     `;
-    params = [usuarioId];
+    params = [req.usuario.paciente_id];
   } else {
     sql = `
       SELECT a.*,

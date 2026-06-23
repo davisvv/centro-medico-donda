@@ -49,10 +49,10 @@ const obtenerCitasHoy = (req, res) => {
       JOIN pacientes p ON c.paciente_id = p.id
       JOIN usuarios  u ON c.medico_id   = u.id
       WHERE DATE(c.fecha_hora) = CURDATE()
-        AND p.correo = (SELECT correo FROM usuarios WHERE id = ?)
+        AND c.paciente_id = ?
       ORDER BY c.fecha_hora ASC
     `;
-    params = [usuarioId];
+    params = [req.usuario.paciente_id];
   } else {
     sql = `
       SELECT c.*,
