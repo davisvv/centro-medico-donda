@@ -1,4 +1,3 @@
-// src/routes/citasRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -7,15 +6,16 @@ const {
   crearCita,
   actualizarEstado,
 } = require("../controllers/citasControllers");
+const verificarToken = require("../middlewares/verificarToken");
+const verificarRol   = require("../middlewares/verificarRol");
 
-// GET  /api/citas       → todas las citas
-// GET  /api/citas/hoy   → citas de hoy
-// POST /api/citas       → crear cita
-// PUT  /api/citas/:id   → actualizar estado
+const soloAdminRecep        = verificarRol(["admin", "recepcionista"]);
+const adminRecepMedPaciente = verificarRol(["admin", "recepcionista", "medico", "paciente"]);
+const adminRecepMedico      = verificarRol(["admin", "recepcionista", "medico"]);
 
-router.get("/", obtenerCitas);
-router.get("/hoy", obtenerCitasHoy);
-router.post("/", crearCita);
-router.put("/:id", actualizarEstado);
+router.get("/",    verificarToken, adminRecepMedico,      obtenerCitas);
+router.get("/hoy", verificarToken, adminRecepMedPaciente, obtenerCitasHoy);
+router.post("/",   verificarToken, soloAdminRecep,        crearCita);
+router.put("/:id", verificarToken, adminRecepMedico,      actualizarEstado);
 
 module.exports = router;

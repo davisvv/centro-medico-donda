@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 export default function PacientesScreen({ route }) {
-  const { token } = route.params;
+  const { token, usuario } = route.params;
   const [pacientes, setPacientes] = useState([]);
   const [busqueda, setBusqueda] = useState("");
 
@@ -41,6 +41,22 @@ export default function PacientesScreen({ route }) {
       .join("")
       .slice(0, 2)
       .toUpperCase();
+
+  if (usuario?.rol === "paciente") {
+    return (
+      <View style={estilos.contenedor}>
+        <StatusBar barStyle="light-content" />
+        <View style={estilos.topbar}>
+          <Text style={estilos.titulo}>Pacientes</Text>
+        </View>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 32 }}>
+          <Text style={{ fontSize: 32, marginBottom: 16 }}>🔒</Text>
+          <Text style={{ fontSize: 16, fontWeight: "700", color: "#1A1A2E", marginBottom: 8 }}>Acceso restringido</Text>
+          <Text style={{ fontSize: 14, color: "#6C757D", textAlign: "center" }}>No tienes permiso para ver el listado de pacientes.</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={estilos.contenedor}>

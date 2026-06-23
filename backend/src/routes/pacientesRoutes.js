@@ -1,4 +1,3 @@
-// src/routes/pacientesRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -7,15 +6,15 @@ const {
   crearPaciente,
   actualizarPaciente,
 } = require("../controllers/pacientesControllers");
+const verificarToken = require("../middlewares/verificarToken");
+const verificarRol   = require("../middlewares/verificarRol");
 
-// GET  /api/pacientes       → todos los pacientes
-// GET  /api/pacientes/:id   → un paciente
-// POST /api/pacientes       → crear paciente
-// PUT  /api/pacientes/:id   → actualizar paciente
+const soloPersonal   = verificarRol(["admin", "recepcionista", "medico"]);
+const soloAdminRecep = verificarRol(["admin", "recepcionista"]);
 
-router.get("/", obtenerPacientes);
-router.get("/:id", obtenerPaciente);
-router.post("/", crearPaciente);
-router.put("/:id", actualizarPaciente);
+router.get("/",    verificarToken, soloPersonal,   obtenerPacientes);
+router.get("/:id", verificarToken, soloPersonal,   obtenerPaciente);
+router.post("/",   verificarToken, soloAdminRecep, crearPaciente);
+router.put("/:id", verificarToken, soloAdminRecep, actualizarPaciente);
 
 module.exports = router;

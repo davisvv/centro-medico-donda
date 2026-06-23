@@ -64,7 +64,7 @@ export default function LoginScreen({ navigation }) {
 
       <View style={estilos.tarjeta}>
         <View style={estilos.roles}>
-          {["Paciente", "Médico", "Admin"].map((rol) => (
+          {["Paciente", "Médico", "Recepcionista", "Admin"].map((rol) => (
             <TouchableOpacity
               key={rol}
               style={[estilos.rol, rolActivo === rol && estilos.rolActivo]}

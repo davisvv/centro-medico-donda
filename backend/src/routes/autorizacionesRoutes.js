@@ -1,4 +1,3 @@
-// src/routes/autorizacionesRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
@@ -6,13 +5,14 @@ const {
   crearAutorizacion,
   actualizarEstado,
 } = require("../controllers/autorizacionesControllers");
+const verificarToken = require("../middlewares/verificarToken");
+const verificarRol   = require("../middlewares/verificarRol");
 
-// GET  /api/autorizaciones      → todas las autorizaciones
-// POST /api/autorizaciones      → crear autorización
-// PUT  /api/autorizaciones/:id  → actualizar estado
+const todos         = verificarRol(["admin", "recepcionista", "medico", "paciente"]);
+const soloAdminMed  = verificarRol(["admin", "medico"]);
 
-router.get("/", obtenerAutorizaciones);
-router.post("/", crearAutorizacion);
-router.put("/:id", actualizarEstado);
+router.get("/",    verificarToken, todos,        obtenerAutorizaciones);
+router.post("/",   verificarToken, soloAdminMed, crearAutorizacion);
+router.put("/:id", verificarToken, soloAdminMed, actualizarEstado);
 
 module.exports = router;

@@ -8,7 +8,8 @@ import {
 } from "react-native";
 
 export default function AutorizacionesScreen({ route }) {
-  const { token } = route.params;
+  const { token, usuario } = route.params;
+  const esPaciente = usuario?.rol === "paciente";
   const [autorizaciones, setAutorizaciones] = useState([]);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function AutorizacionesScreen({ route }) {
   const badgeEstilo = (estado) => {
     if (estado === "Aprobada") return estilos.badgeVerde;
     if (estado === "Rechazada") return estilos.badgeRojo;
+    if (estado === "En revisión") return estilos.badgeAzul;
     return estilos.badgeAmbar;
   };
 
@@ -64,16 +66,23 @@ export default function AutorizacionesScreen({ route }) {
 
         {autorizaciones.map((item) => (
           <View key={item.id} style={estilos.card}>
-            <View style={estilos.avatar}>
-              <Text style={estilos.avatarTexto}>
-                {iniciales(item.paciente_nombre)}
-              </Text>
-            </View>
+            {!esPaciente && (
+              <View style={estilos.avatar}>
+                <Text style={estilos.avatarTexto}>
+                  {iniciales(item.paciente_nombre)}
+                </Text>
+              </View>
+            )}
             <View style={{ flex: 1 }}>
-              <Text style={estilos.nombre}>{item.paciente_nombre}</Text>
+              {!esPaciente && (
+                <Text style={estilos.nombre}>{item.paciente_nombre}</Text>
+              )}
               <Text style={estilos.procedimiento}>{item.procedimiento}</Text>
-              {item.medico_nombre ? (
+              {!esPaciente && item.medico_nombre ? (
                 <Text style={estilos.info}>Dr. {item.medico_nombre}</Text>
+              ) : null}
+              {esPaciente && item.eps ? (
+                <Text style={estilos.info}>{item.eps}</Text>
               ) : null}
             </View>
             <View style={[estilos.badge, badgeEstilo(item.estado)]}>
@@ -123,5 +132,6 @@ const estilos = StyleSheet.create({
   badgeVerde: { backgroundColor: "#E1F5EE" },
   badgeAmbar: { backgroundColor: "#FAEEDA" },
   badgeRojo: { backgroundColor: "#FDECEA" },
+  badgeAzul: { backgroundColor: "#E8F0FE" },
   badgeTexto: { fontSize: 11, fontWeight: "600", color: "#085041" },
 });
