@@ -76,42 +76,9 @@
             color: rgba(255, 255, 255, 0.75);
         }
 
-        /* ─── SELECTOR DE ROL ─── */
-        .roles {
-            display: flex;
-            gap: 8px;
-            padding: 24px 28px 0;
-        }
-
-        .rol {
-            flex: 1;
-            padding: 10px 6px;
-            border: 1.5px solid var(--gris-borde);
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--texto-suave);
-            transition: all 0.2s;
-            background: #fff;
-        }
-
-        .rol i {
-            display: block;
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        .rol.activo {
-            border-color: var(--verde);
-            background: var(--verde-claro);
-            color: var(--verde-oscuro);
-            font-weight: 600;
-        }
-
         /* ─── FORMULARIO ─── */
         .form-area {
-            padding: 20px 28px 32px;
+            padding: 32px 28px 32px;
         }
 
         .campo {
@@ -208,22 +175,6 @@
             <p>Sistema de gestión en salud</p>
         </div>
 
-        <!-- SELECTOR DE ROL -->
-        <div class="roles">
-            <div class="rol activo" onclick="seleccionarRol(this)">
-                <i class="bi bi-person"></i>Paciente
-            </div>
-            <div class="rol" onclick="seleccionarRol(this)">
-                <i class="bi bi-heart-pulse"></i>Médico
-            </div>
-            <div class="rol" onclick="seleccionarRol(this)">
-                <i class="bi bi-person-workspace"></i>Recepcionista
-            </div>
-            <div class="rol" onclick="seleccionarRol(this)">
-                <i class="bi bi-shield-check"></i>Admin
-            </div>
-        </div>
-
         <!-- FORMULARIO -->
         <div class="form-area">
 
@@ -254,12 +205,6 @@
     </div>
 
     <script>
-        // Seleccionar rol activo
-        function seleccionarRol(elemento) {
-            document.querySelectorAll('.rol').forEach(r => r.classList.remove('activo'));
-            elemento.classList.add('activo');
-        }
-
         // Función de login conectada al backend
         async function ingresar() {
             const correo = document.querySelector('input[type="email"]').value;

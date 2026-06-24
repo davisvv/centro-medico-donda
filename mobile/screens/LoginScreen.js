@@ -8,10 +8,8 @@ import {
   StatusBar,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function LoginScreen({ navigation }) {
-  const [rolActivo, setRolActivo] = useState("Paciente");
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
 
@@ -64,34 +62,6 @@ export default function LoginScreen({ navigation }) {
       </View>
 
       <View style={estilos.tarjeta}>
-        <View style={estilos.roles}>
-          {[
-            { label: "Paciente", icono: "person" },
-            { label: "Médico",   icono: "pulse" },
-            { label: "Recep.",   icono: "headset" },
-            { label: "Admin",    icono: "shield-checkmark" },
-          ].map(({ label, icono }) => {
-            const activo = rolActivo === label;
-            return (
-              <TouchableOpacity
-                key={label}
-                style={[estilos.rol, activo && estilos.rolActivo]}
-                onPress={() => setRolActivo(label)}
-              >
-                <Ionicons
-                  name={activo ? icono : `${icono}-outline`}
-                  size={20}
-                  color={activo ? "#085041" : "#6C757D"}
-                  style={{ marginBottom: 4 }}
-                />
-                <Text style={[estilos.rolTexto, activo && estilos.rolTextoActivo]}>
-                  {label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
         <Text style={estilos.etiqueta}>CORREO ELECTRÓNICO</Text>
         <TextInput
           style={estilos.input}
@@ -147,28 +117,15 @@ const estilos = StyleSheet.create({
     marginTop: -20,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: 24,
+    padding: 28,
+    paddingTop: 32,
   },
-  roles: { flexDirection: "row", gap: 8, marginBottom: 20 },
-  rol: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-    borderWidth: 1.5,
-    borderColor: "#DEE2E6",
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rolActivo: { borderColor: "#0F6E56", backgroundColor: "#E1F5EE" },
-  rolTexto: { fontSize: 12, color: "#6C757D" },
-  rolTextoActivo: { color: "#085041", fontWeight: "600" },
   etiqueta: {
     fontSize: 12,
     fontWeight: "600",
     color: "#6C757D",
     marginBottom: 6,
-    marginTop: 12,
+    marginTop: 16,
   },
   input: {
     borderWidth: 1.5,
@@ -185,7 +142,7 @@ const estilos = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 28,
   },
   botonTexto: { color: "#fff", fontSize: 15, fontWeight: "600" },
 });
