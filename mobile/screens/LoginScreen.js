@@ -8,6 +8,7 @@ import {
   StatusBar,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function LoginScreen({ navigation }) {
   const [rolActivo, setRolActivo] = useState("Paciente");
@@ -64,22 +65,31 @@ export default function LoginScreen({ navigation }) {
 
       <View style={estilos.tarjeta}>
         <View style={estilos.roles}>
-          {["Paciente", "Médico", "Recepcionista", "Admin"].map((rol) => (
-            <TouchableOpacity
-              key={rol}
-              style={[estilos.rol, rolActivo === rol && estilos.rolActivo]}
-              onPress={() => setRolActivo(rol)}
-            >
-              <Text
-                style={[
-                  estilos.rolTexto,
-                  rolActivo === rol && estilos.rolTextoActivo,
-                ]}
+          {[
+            { label: "Paciente", icono: "person" },
+            { label: "Médico",   icono: "pulse" },
+            { label: "Recep.",   icono: "headset" },
+            { label: "Admin",    icono: "shield-checkmark" },
+          ].map(({ label, icono }) => {
+            const activo = rolActivo === label;
+            return (
+              <TouchableOpacity
+                key={label}
+                style={[estilos.rol, activo && estilos.rolActivo]}
+                onPress={() => setRolActivo(label)}
               >
-                {rol}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Ionicons
+                  name={activo ? icono : `${icono}-outline`}
+                  size={20}
+                  color={activo ? "#085041" : "#6C757D"}
+                  style={{ marginBottom: 4 }}
+                />
+                <Text style={[estilos.rolTexto, activo && estilos.rolTextoActivo]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         <Text style={estilos.etiqueta}>CORREO ELECTRÓNICO</Text>
@@ -143,10 +153,12 @@ const estilos = StyleSheet.create({
   rol: {
     flex: 1,
     paddingVertical: 10,
+    paddingHorizontal: 4,
     borderWidth: 1.5,
     borderColor: "#DEE2E6",
     borderRadius: 10,
     alignItems: "center",
+    justifyContent: "center",
   },
   rolActivo: { borderColor: "#0F6E56", backgroundColor: "#E1F5EE" },
   rolTexto: { fontSize: 12, color: "#6C757D" },
