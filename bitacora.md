@@ -189,4 +189,71 @@ Registro cronológico de todos los cambios, decisiones y contratiempos del proye
 
 ---
 
-*Última actualización: julio 2026*
+## 12/07/2026 — Loading states, manejo de errores y EAS Build
+
+### Fase 10 — UX profesional: estados de carga y errores en toda la app móvil
+
+**Nuevo componente:** `mobile/components/ErrorMessage.js`
+- Componente reutilizable para errores de red en todas las pantallas.
+- Fondo rojo suave `#FCEBEB`, ícono `alert-circle-outline`, texto `#A32D2D`.
+- Botón "Reintentar" que vuelve a llamar la función de carga correspondiente.
+
+**DashboardScreen.js**
+- Añadido estado `cargando` (spinner inicial) y `error`.
+- Topbar muestra "Cargando..." dinámicamente durante la carga.
+- Estado vacío mejorado: ícono `calendar-outline` gris + "Sin citas programadas para hoy".
+- Timeout de 10 segundos via `AbortController` en el fetch.
+
+**CitasScreen.js**
+- Eliminado `Alert.alert()` completamente — reemplazado por banners inline.
+- Añadido `cargando`, `error`, `errorAccion` (auto-desaparece 3s), `mensajeExito` (auto-desaparece 2s).
+- Recargas post-acción son **silenciosas** (`silencioso = true`): no muestran spinner, solo refrescan la lista.
+- Banner verde de éxito aparece al confirmar o cancelar una cita antes del refresh.
+- Estado vacío mejorado: ícono `calendar-outline` + texto descriptivo.
+- Timeout de 10s en fetch de carga y en PUT de actualización.
+
+**AutorizacionesScreen.js**
+- Añadido `cargando` y `error`. Reemplazado `console.log` por `setError`.
+- Estado vacío diferenciado por rol: "No tienes autorizaciones registradas" (paciente) vs "No hay autorizaciones registradas" (personal).
+- Ícono `document-text-outline` en estado vacío.
+
+**PacientesScreen.js**
+- `cargando` inicia en `false` si el rol es `paciente` (no hace fetch innecesario).
+- `useEffect` no llama la API si `rol === 'paciente'` — fix de bug previo.
+- Buscador se deshabilita durante carga/error.
+- Estado vacío diferenciado: busqueda activa vs lista vacía real.
+- Banner verde de éxito tras crear paciente, con recarga silenciosa.
+- Timeout de 10s en `cargarPacientes` y en el POST de `crearPaciente`.
+
+**Commit:** `7cff66a` — 5 archivos, 763 inserciones.
+
+---
+
+### Fase 11 — EAS Build: generación de APK para Android
+
+**Configuración inicial**
+- EAS CLI ya estaba instalado (v20.5.1). Se ejecutó `eas init` → vinculó el proyecto a la cuenta `dondavv`, generó `projectId` y `owner` en `app.json`.
+- Creado `eas.json` con perfiles `preview` y `production`, ambos con `buildType: "apk"`.
+- `app.json` actualizado: `name` → "Centro Médico DONDA", `slug` → "centro-medico-donda", `android.package` → "com.donda.centromedico".
+
+**Contratiempo 1 — Gradle build failed (newArchEnabled)**
+- Primer build (`01115e71`) falló con `EAS_BUILD_UNKNOWN_GRADLE_ERROR`.
+- Causa sospechada: `newArchEnabled: true` + librerías nativas incompatibles con nueva arquitectura en el entorno cloud.
+- Fix aplicado: `newArchEnabled: false` en `app.json` + `appVersionSource: "local"` en `eas.json`.
+
+**Contratiempo 2 — expo doctor bloqueó el build (versiones incompatibles)**
+- Segundo build (`197be2ca`) también falló con el mismo error de Gradle.
+- Logs reales descargados desde Google Storage via API de EAS.
+- Causa real: `expo doctor` detectó versiones fuera del rango de Expo SDK 54 antes de llegar a Gradle:
+  - `react-native-screens` instalado `4.0.0`, requerido `~4.16.0`
+  - `react-native-safe-area-context` instalado `5.8.0`, requerido `~5.6.0`
+- Fix: `npx expo install react-native-safe-area-context react-native-screens` → instaló `5.6.2` y `4.16.0`.
+- Verificado con `npx expo install --check` → "Dependencies are up to date".
+
+**Tercer build** en curso al momento de esta actualización.
+
+**Commit:** `9025e77` — `app.json`, `eas.json`, `package.json`, `package-lock.json`.
+
+---
+
+*Última actualización: 12/07/2026*
