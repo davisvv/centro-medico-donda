@@ -38,7 +38,7 @@ jobs:
 
       - name: Decodificar keystore desde Secret
         working-directory: mobile/android/app
-        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > donda-release.keystore
+        run: printf '%s' "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > donda-release.keystore
 
       - name: Dar permisos a gradlew
         working-directory: mobile/android
