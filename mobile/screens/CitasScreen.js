@@ -29,7 +29,7 @@ export default function CitasScreen({ route }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch("http://192.168.1.79:3000/api/citas/hoy", {
+      const respuesta = await fetch("https://centro-medico-donda-production.up.railway.app/api/citas/hoy", {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
@@ -65,7 +65,7 @@ export default function CitasScreen({ route }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch(`http://192.168.1.79:3000/api/citas/${id}`, {
+      const respuesta = await fetch(`https://centro-medico-donda-production.up.railway.app/api/citas/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

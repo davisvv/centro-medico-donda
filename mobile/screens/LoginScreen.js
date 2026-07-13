@@ -21,7 +21,7 @@ export default function LoginScreen({ navigation }) {
 
     try {
       const respuesta = await fetch(
-        "http://192.168.1.79:3000/api/auth/login",
+        "https://centro-medico-donda-production.up.railway.app/api/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -25,7 +25,7 @@ export default function AutorizacionesScreen({ route }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch("http://192.168.1.79:3000/api/autorizaciones", {
+      const respuesta = await fetch("https://centro-medico-donda-production.up.railway.app/api/autorizaciones", {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
