@@ -134,7 +134,38 @@ centro-medico-donda/
 
 ### 1. Base de datos
 
-Crear la base de datos en MySQL y ejecutar el script de tablas (usuarios, pacientes, citas, autorizaciones). Asegúrate de que la columna `rol` en `usuarios` tenga el ENUM: `admin`, `recepcionista`, `medico`, `paciente`.
+Crear la base de datos vacía en MySQL y luego ejecutar el script de migración incluido en el proyecto:
+
+```bash
+# Crear la base de datos (solo una vez)
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS centro_medico_donda CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Aplicar el schema (crea las 4 tablas con sus relaciones)
+cd backend
+npm run migrate
+
+# Opcional: cargar datos de prueba (usuarios, pacientes, citas)
+npm run migrate:seed
+```
+
+El script `migrate.js` es idempotente: usa `CREATE TABLE IF NOT EXISTS`, por lo que puede ejecutarse múltiples veces sin errores ni pérdida de datos.
+
+**Credenciales de prueba** (tras ejecutar `--seed`):
+
+| Correo | Contraseña | Rol |
+|---|---|---|
+| admin@donda.com | donda2025 | admin |
+| a.perez@donda.com | donda2025 | medico |
+| recepcion@donda.com | recep2025 | recepcionista |
+| maria@gmail.com | paciente2025 | paciente |
+
+#### En Railway
+
+Después de configurar el servicio MySQL en Railway y las variables de entorno, ejecuta la migración una sola vez desde la terminal de Railway o desde tu máquina apuntando a la BD remota:
+
+```bash
+DB_HOST=<railway-host> DB_PORT=<puerto> DB_USER=<user> DB_PASSWORD=<pass> DB_NAME=<db> node database/migrate.js --seed
+```
 
 ### 2. Backend
 

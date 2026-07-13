@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "migrate": "node database/migrate.js",
+    "migrate:seed": "node database/migrate.js --seed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
