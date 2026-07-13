@@ -250,10 +250,65 @@ Registro cronológico de todos los cambios, decisiones y contratiempos del proye
 - Fix: `npx expo install react-native-safe-area-context react-native-screens` → instaló `5.6.2` y `4.16.0`.
 - Verificado con `npx expo install --check` → "Dependencies are up to date".
 
-**Tercer build** en curso al momento de esta actualización.
+**Tercer build exitoso** (`49d8290e`): APK generado correctamente.
+- Descargable desde Expo: `https://expo.dev/artifacts/eas/4AcK--_FF0nbCvviB-r9Abtjl7Vru0nloaxDOBuuW8k.apk`
 
 **Commit:** `9025e77` — `app.json`, `eas.json`, `package.json`, `package-lock.json`.
 
 ---
 
-*Última actualización: 12/07/2026*
+## 13/07/2026 — Backend: Railway, migración de base de datos y seed
+
+### Fase 12 — Preparación para despliegue en Railway
+
+**Conexión a base de datos — createPool**
+- `backend/src/config/database.js` migrado de `mysql.createConnection` a `mysql.createPool`.
+- `connectionLimit: 10`, `waitForConnections: true`, `queueLimit: 0`.
+- Puerto configurable via `DB_PORT` (necesario en Railway, que no usa el puerto 3306 estándar).
+- El pool verifica la conexión al arrancar (`getConnection` + `release`) sin mantenerla abierta permanentemente.
+
+**Scripts npm**
+- `backend/package.json` ahora incluye:
+  - `"start": "node server.js"` — punto de entrada para Railway.
+  - `"migrate": "node database/migrate.js"` — solo schema.
+  - `"migrate:seed": "node database/migrate.js --seed"` — schema + datos de prueba.
+
+**`.railwayignore`**
+- Excluye `node_modules/`, `.env`, `*.log`, `.DS_Store`, `Thumbs.db` del deploy.
+
+### Fase 13 — Sistema de migración versionado
+
+**`backend/database/schema.sql`**
+- 4 tablas en orden de dependencia: `pacientes → usuarios → citas → autorizaciones`.
+- `CREATE TABLE IF NOT EXISTS` en todas → idempotente, puede re-ejecutarse sin errores.
+- `SET FOREIGN_KEY_CHECKS = 0/1` al inicio y al final para evitar errores de orden.
+- `utf8mb4` / `InnoDB` en todas las tablas.
+- FKs: `usuarios.paciente_id → pacientes (SET NULL)`, `citas/autorizaciones → pacientes y usuarios (CASCADE)`.
+- Campo `activo TINYINT(1) DEFAULT 1` en `usuarios` (usado en authController con `WHERE activo = true`).
+
+**`backend/database/migrate.js`**
+- Carga `.env` correctamente desde subcarpeta (`path.join(__dirname, "../.env")`).
+- Lee y ejecuta `schema.sql` con `multipleStatements: true`.
+- Si recibe `--seed`, llama `seed(connection)`.
+- Usa `createConnection` (no pool) para la migración puntual, cierra al terminar.
+
+**`backend/database/seed.js`**
+- **Contratiempo**: versión anterior incluía dos usuarios inventados que no existían en la BD local:
+  - Dra. Sofía Herrera (`pediatra@donda.com`) — nunca fue dato de prueba real.
+  - Laura Martínez López (`laura.p@donda.com`) — nunca fue dato de prueba real.
+- **Fix**: seed reescrito con exactamente los 4 usuarios validados localmente:
+  - `admin@donda.com` / `donda2025` → Admin DONDA
+  - `a.perez@donda.com` / `donda2025` → Dr. Alejandro Pérez (Medicina General)
+  - `recepcion@donda.com` / `recep2025` → Ana Recepción
+  - `maria@gmail.com` / `paciente2025` → María García (vinculada a su registro en `pacientes`)
+- 1 paciente en tabla `pacientes`: María García (cédula `1098765432`, EPS Sura, sangre A+).
+- 2 citas de hoy creadas entre María García y el Dr. Pérez (Pendiente y Confirmada).
+- Contraseñas hasheadas en tiempo de ejecución con `bcryptjs.hashSync`.
+- `INSERT IGNORE` en todas las inserciones → idempotente.
+- README.md actualizado con las credenciales correctas.
+
+**Commit:** `95778df` — 7 archivos: schema.sql, migrate.js, seed.js, database.js, package.json, .railwayignore, README.md.
+
+---
+
+*Última actualización: 13/07/2026*
