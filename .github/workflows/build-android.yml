@@ -1,0 +1,61 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: mobile
+        run: npm ci
+
+      - name: Generar proyecto Android nativo
+        working-directory: mobile
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Decodificar keystore desde Secret
+        working-directory: mobile/android/app
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > donda-release.keystore
+
+      - name: Dar permisos a gradlew
+        working-directory: mobile/android
+        run: chmod +x gradlew
+
+      - name: Compilar APK firmado
+        working-directory: mobile/android
+        run: ./gradlew assembleRelease --no-daemon
+        env:
+          KEYSTORE_FILE: donda-release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Subir APK como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: centro-medico-donda-v${{ github.run_number }}
+          path: mobile/android/app/build/outputs/apk/release/app-release*.apk
+          retention-days: 30
