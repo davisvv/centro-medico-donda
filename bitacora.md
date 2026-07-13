@@ -311,4 +311,27 @@ Registro cronológico de todos los cambios, decisiones y contratiempos del proye
 
 ---
 
+---
+
+## 13/07/2026 — Despliegue en producción: Railway + URL de producción en app móvil
+
+### Fase 14 — Migración ejecutada contra Railway MySQL
+
+- Conexión pública TCP de Railway: `trolley.proxy.rlwy.net:51803`.
+- Comando ejecutado desde la PC local con variables de entorno sobreescritas temporalmente:
+  `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME=railway`.
+- Resultado: 4 tablas creadas, 4 usuarios insertados, 1 paciente y 2 citas de prueba.
+- Railway CLI (v5.26.1) instalado globalmente via npm (`@railway/cli`).
+
+### Fase 15 — App móvil apunta a producción
+
+- Reemplazadas **7 referencias** a `http://192.168.1.79:3000` por `https://centro-medico-donda-production.up.railway.app` en 5 archivos:
+  - `mobile/screens/LoginScreen.js` — endpoint de login
+  - `mobile/screens/DashboardScreen.js` — citas del día en dashboard
+  - `mobile/screens/CitasScreen.js` — carga de citas + PUT de actualización de estado
+  - `mobile/screens/AutorizacionesScreen.js` — listado de autorizaciones
+  - `mobile/screens/PacientesScreen.js` — GET listado + POST crear paciente
+- Protocolo actualizado de `http` a `https` en todas las URLs.
+- Verificado: 0 referencias a la IP local quedan en `mobile/`.
+
 *Última actualización: 13/07/2026*
