@@ -140,7 +140,7 @@ export default function App() {
             <MainTabs
               {...props}
               route={{
-                params: sesionGuardada ?? props.route.params,
+                params: props.route.params ?? sesionGuardada,
               }}
             />
           )}

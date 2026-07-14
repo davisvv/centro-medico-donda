@@ -7,18 +7,24 @@ import {
   StyleSheet,
   StatusBar,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }) {
-  const [correo, setCorreo] = useState("");
+  const [correo, setCorreo]       = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [error, setError]         = useState("");
+  const [cargando, setCargando]   = useState(false);
 
   const iniciarSesion = async () => {
+    setError("");
+
     if (!correo || !contrasena) {
-      alert("Por favor ingresa tu correo y contraseña");
+      setError("Por favor ingresa tu correo y contraseña.");
       return;
     }
 
+    setCargando(true);
     try {
       const respuesta = await fetch(
         "https://centro-medico-donda-production.up.railway.app/api/auth/login",
@@ -32,7 +38,7 @@ export default function LoginScreen({ navigation }) {
       const datos = await respuesta.json();
 
       if (!respuesta.ok) {
-        alert(datos.error);
+        setError(datos.error || "Credenciales incorrectas.");
         return;
       }
 
@@ -43,9 +49,10 @@ export default function LoginScreen({ navigation }) {
         token: datos.token,
         usuario: datos.usuario,
       });
-    } catch (error) {
-      alert("Error al conectar con el servidor. Verifica tu conexión.");
-      console.log(error);
+    } catch (e) {
+      setError("No se pudo conectar con el servidor. Verifica tu conexión.");
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -68,7 +75,7 @@ export default function LoginScreen({ navigation }) {
           placeholder="tucorreo@ejemplo.com"
           placeholderTextColor="#999"
           value={correo}
-          onChangeText={setCorreo}
+          onChangeText={(v) => { setCorreo(v); setError(""); }}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -79,12 +86,25 @@ export default function LoginScreen({ navigation }) {
           placeholder="••••••••"
           placeholderTextColor="#999"
           value={contrasena}
-          onChangeText={setContrasena}
+          onChangeText={(v) => { setContrasena(v); setError(""); }}
           secureTextEntry
         />
 
-        <TouchableOpacity style={estilos.boton} onPress={iniciarSesion}>
-          <Text style={estilos.botonTexto}>Ingresar al sistema</Text>
+        {error ? (
+          <View style={estilos.errorBanner}>
+            <Ionicons name="alert-circle-outline" size={18} color="#A32D2D" />
+            <Text style={estilos.errorTexto}>{error}</Text>
+          </View>
+        ) : null}
+
+        <TouchableOpacity
+          style={[estilos.boton, cargando && estilos.botonDeshabilitado]}
+          onPress={iniciarSesion}
+          disabled={cargando}
+        >
+          <Text style={estilos.botonTexto}>
+            {cargando ? "Verificando..." : "Ingresar al sistema"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -137,12 +157,23 @@ const estilos = StyleSheet.create({
     backgroundColor: "#F4F6F8",
     color: "#1A1A2E",
   },
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#FCEBEB",
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 16,
+  },
+  errorTexto: { flex: 1, fontSize: 13, color: "#A32D2D", lineHeight: 18 },
   boton: {
     backgroundColor: "#0F6E56",
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
-    marginTop: 28,
+    marginTop: 24,
   },
+  botonDeshabilitado: { opacity: 0.6 },
   botonTexto: { color: "#fff", fontSize: 15, fontWeight: "600" },
 });
