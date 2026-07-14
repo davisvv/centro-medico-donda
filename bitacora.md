@@ -334,4 +334,24 @@ Registro cronológico de todos los cambios, decisiones y contratiempos del proye
 - Protocolo actualizado de `http` a `https` en todas las URLs.
 - Verificado: 0 referencias a la IP local quedan en `mobile/`.
 
+### Fase 16 — GitHub Actions: build de APK sin quota de EAS
+
+**Contexto**: se agotó el plan gratuito de EAS Build. Solución: compilar el APK directamente en un runner de GitHub Actions usando `expo prebuild` + Gradle, sin pasar por los servidores de Expo.
+
+**`.github/workflows/build-android.yml`** (`8e28410`)
+- Se dispara en `workflow_dispatch` (manual) o en push a `main` que toque archivos en `mobile/`.
+- Pasos: checkout → Java 17 (Temurin) → Node 20 → `npm ci` → `expo prebuild --platform android --clean --no-install` → decode keystore → `gradlew assembleRelease` → artifact `centro-medico-donda-vN` (30 días de retención).
+- APK firmado con keystore almacenado en GitHub Secrets (nunca en el repositorio).
+
+**Keystore y Secrets**
+- Generado con `keytool -genkeypair -storetype PKCS12 -alias donda -keyalg RSA -keysize 2048 -validity 10000`.
+- Convertido a Base64 con `[Convert]::ToBase64String(...)  | Set-Clipboard` (directo al portapapeles, sin archivo intermedio).
+- 4 Secrets configurados en GitHub: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
+- Archivo `.keystore` eliminado del disco tras copiar al portapapeles.
+
+**Contratiempo — `base64: invalid input` en GitHub Actions** (`f96aeb1`)
+- Causa: el primer keystore se exportó con `Out-File`, que agrega un salto de línea al final del Base64. El comando `echo "..." | base64 --decode` en Linux rechaza el input con newline.
+- Fix en workflow: cambiado `echo` por `printf '%s'`, que no agrega newline y no interpreta el valor como formato.
+- Fix en proceso: keystore regenerado desde cero y Secret `ANDROID_KEYSTORE_BASE64` reemplazado usando `Set-Clipboard` (garantiza sin newline).
+
 *Última actualización: 13/07/2026*
