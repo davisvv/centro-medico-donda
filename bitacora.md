@@ -354,4 +354,54 @@ Registro cronológico de todos los cambios, decisiones y contratiempos del proye
 - Fix en workflow: cambiado `echo` por `printf '%s'`, que no agrega newline y no interpreta el valor como formato.
 - Fix en proceso: keystore regenerado desde cero y Secret `ANDROID_KEYSTORE_BASE64` reemplazado usando `Set-Clipboard` (garantiza sin newline).
 
-*Última actualización: 13/07/2026*
+---
+
+## 14/07/2026 — Bug de seguridad en sesión, mejoras de UX y nueva funcionalidad de citas
+
+### Fase 17 — Fix crítico: sesión siempre mostraba al primer usuario logueado
+
+**Síntoma**: sin importar qué usuario iniciara sesión (admin, recepcionista, médico), la app mostraba siempre el nombre y rol del primer usuario que había iniciado sesión anteriormente.
+
+**Causa raíz** (`App.js` línea 143):
+```js
+params: sesionGuardada ?? props.route.params  // ← BUGGY
+```
+`sesionGuardada` se carga de AsyncStorage una sola vez al arrancar la app y nunca se actualiza. El operador `??` devuelve `sesionGuardada` si no es null, ignorando completamente `props.route.params` (los datos del login fresco). Resultado: el admin veía la interfaz del médico.
+
+**Fix** (`41eb4c5`): invertir los operandos del `??`:
+```js
+params: props.route.params ?? sesionGuardada  // ← FIXED
+```
+El login fresco tiene prioridad; `sesionGuardada` solo se usa como fallback al restaurar sesión al abrir la app.
+
+### Fase 18 — LoginScreen: error inline reemplaza Alert.alert()
+
+- Eliminados los 3 `alert()` de `LoginScreen.js` (campos vacíos, credenciales incorrectas, error de red).
+- Reemplazados por banner inline con fondo `#FCEBEB`, ícono `alert-circle-outline`, texto `#A32D2D` — mismo estilo que `ErrorMessage.js`.
+- El banner desaparece automáticamente al escribir en cualquier campo.
+- Botón muestra "Verificando..." y se deshabilita durante la petición al servidor.
+- **Commit:** `41eb4c5`
+
+### Fase 19 — CitasScreen: crear nueva cita (FAB + modal)
+
+**Backend nuevo** (`fd36830`):
+- Nuevo archivo `backend/src/controllers/usuariosControllers.js` con función `obtenerMedicos`.
+- Nueva ruta `GET /api/usuarios/medicos` en `backend/src/routes/usuariosRoutes.js`.
+- Seguridad en dos capas: `verificarToken → verificarRol(["admin", "recepcionista"]) → obtenerMedicos`.
+- Registrada en `server.js` bajo `/api/usuarios`.
+
+**App móvil** (`ac4eca8`):
+- **FAB** `+` en esquina inferior derecha, visible solo para `admin` y `recepcionista`.
+- Al tocar el FAB, carga en paralelo pacientes (`GET /api/pacientes`) y médicos (`GET /api/usuarios/medicos`).
+- **Modal "Nueva cita"** con:
+  - Selector de paciente → sub-modal con lista scrolleable (nombre + cédula).
+  - Selector de médico → mismo patrón (nombre + especialidad).
+  - Campo fecha/hora en texto libre (`YYYY-MM-DD HH:MM`).
+  - Campos tipo de consulta y consultorio.
+  - Validación: paciente, médico y fecha son obligatorios.
+  - Error inline si falla el POST; `ActivityIndicator` en el botón mientras guarda.
+  - Éxito: cierra modal, banner verde, recarga silenciosa de la lista de citas.
+- Misma estética que el modal de crear paciente (bottom sheet, colores, pills, patrones de error).
+- `<View style={{ height: 100 }} />` al final del scroll para que el FAB no tape la última cita.
+
+*Última actualización: 14/07/2026*
