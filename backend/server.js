@@ -23,6 +23,9 @@ app.use("/api/citas", citasRoutes);
 const autorizacionesRoutes = require("./src/routes/autorizacionesRoutes");
 app.use("/api/autorizaciones", autorizacionesRoutes);
 
+const usuariosRoutes = require("./src/routes/usuariosRoutes");
+app.use("/api/usuarios", usuariosRoutes);
+
 // ── RUTA DE PRUEBA ──
 app.get("/", (req, res) => {
   res.json({
