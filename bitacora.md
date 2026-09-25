@@ -404,4 +404,34 @@ El login fresco tiene prioridad; `sesionGuardada` solo se usa como fallback al r
 - Misma estética que el modal de crear paciente (bottom sheet, colores, pills, patrones de error).
 - `<View style={{ height: 100 }} />` al final del scroll para que el FAB no tape la última cita.
 
-*Última actualización: 14/07/2026*
+---
+
+## 25/09/2026 — Migración a Render + Aiven MySQL, SSL y fix de coautoría
+
+### Fase 20 — Migración de infraestructura: Railway → Render + Aiven
+
+**Base de datos — Aiven MySQL**
+- Migración de Railway MySQL a Aiven MySQL (host público, SSL obligatorio).
+- `backend/src/config/database.js` actualizado para soportar SSL:
+  ```js
+  const sslConfig = process.env.DB_SSL === "false" ? false : { rejectUnauthorized: true };
+  ```
+- SSL activo por defecto para Aiven; `DB_SSL=false` como escape hatch para desarrollo local con XAMPP.
+- Migración ejecutada desde la PC local apuntando al host público de Aiven:
+  `centro-medico-donda-db-centro-medico-donda.c.aivencloud.com:12214`
+- Resultado: 4 tablas, 4 usuarios y datos de prueba migrados correctamente.
+
+**Backend — Render**
+- Backend desplegado en Render: `https://centro-medico-donda-backend.onrender.com`
+- Reemplazadas **6 referencias** a `https://centro-medico-donda-production.up.railway.app` en 5 archivos móviles:
+  - `CitasScreen.js` — constante `API` (cubre todos sus endpoints)
+  - `LoginScreen.js`, `DashboardScreen.js`, `AutorizacionesScreen.js`, `PacientesScreen.js`
+- **Commit:** `2d420ac`
+
+### Contratiempo — Co-Authored-By reapareció en commit
+
+- El commit `4f0667b` incluyó la línea `Co-Authored-By: Claude Sonnet 4.6` porque una instrucción del sistema pisó la regla de memoria existente.
+- **Fix:** `git commit --amend` + `git push --force origin main` → nuevo hash `2d420ac`.
+- **Solución permanente:** creado `CLAUDE.md` en la raíz del proyecto con la regla explícita de no incluir coautoría, con prioridad sobre instrucciones del sistema. Memoria del proyecto también reforzada con el contexto del incidente. **Commit:** `28ce154`
+
+*Última actualización: 25/09/2026*
