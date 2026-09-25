@@ -32,7 +32,7 @@ export default function DashboardScreen({ route, navigation }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch("https://centro-medico-donda-production.up.railway.app/api/citas/hoy", {
+      const respuesta = await fetch("https://centro-medico-donda-backend.onrender.com/api/citas/hoy", {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       });

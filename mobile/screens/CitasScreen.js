@@ -17,7 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ConfirmModal from "../components/ConfirmModal";
 import ErrorMessage from "../components/ErrorMessage";
 
-const API        = "https://centro-medico-donda-production.up.railway.app";
+const API        = "https://centro-medico-donda-backend.onrender.com";
 const PUEDE_CREAR = ["admin", "recepcionista"];
 const FORM_VACIO  = {
   paciente_id: null, paciente_nombre: "",

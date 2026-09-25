@@ -50,7 +50,7 @@ export default function PacientesScreen({ route }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch("https://centro-medico-donda-production.up.railway.app/api/pacientes", {
+      const respuesta = await fetch("https://centro-medico-donda-backend.onrender.com/api/pacientes", {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
@@ -99,7 +99,7 @@ export default function PacientesScreen({ route }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch("https://centro-medico-donda-production.up.railway.app/api/pacientes", {
+      const respuesta = await fetch("https://centro-medico-donda-backend.onrender.com/api/pacientes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

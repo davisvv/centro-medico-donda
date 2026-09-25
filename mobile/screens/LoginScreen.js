@@ -27,7 +27,7 @@ export default function LoginScreen({ navigation }) {
     setCargando(true);
     try {
       const respuesta = await fetch(
-        "https://centro-medico-donda-production.up.railway.app/api/auth/login",
+        "https://centro-medico-donda-backend.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

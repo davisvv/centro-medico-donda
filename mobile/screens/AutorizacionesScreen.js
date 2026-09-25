@@ -25,7 +25,7 @@ export default function AutorizacionesScreen({ route }) {
     const controller = new AbortController();
     const timeoutId  = setTimeout(() => controller.abort(), 10000);
     try {
-      const respuesta = await fetch("https://centro-medico-donda-production.up.railway.app/api/autorizaciones", {
+      const respuesta = await fetch("https://centro-medico-donda-backend.onrender.com/api/autorizaciones", {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
